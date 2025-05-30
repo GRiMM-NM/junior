@@ -1,7 +1,7 @@
 import { Card } from "@/components/Card";
+import { MissionCard } from "@/components/Mission/MissionCard";
 import { ThemedeText } from "@/components/ThemedText";
 import { useThemeColors } from "@/hooks/useThemeColor";
-import { Text } from "@react-navigation/elements";
 import { FlatList, Image, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -10,7 +10,7 @@ export default function Index() {
     const mission = Array.from({length:20},(_,k)=> ({
       title : 'Nom Mission',
       id: k+1,
-      description : 'description' 
+      description : 'description',
     }))
   return (
     <SafeAreaView style={[styles.container, {backgroundColor: colors.tint}]}>
@@ -22,10 +22,7 @@ export default function Index() {
         <FlatList 
         data={mission} 
         contentContainerStyle={[styles.gridgap, styles.list]}
-        renderItem={({item})=> <Card style={{flex:1, height: 195}}>
-          <Text>{item.title}</Text>
-          <Text>{item.description}</Text>
-        </Card>} keyExtractor={(item)=>item.id.toString()}/>
+        renderItem={({item})=> <MissionCard id={item.id} title={item.title} description={item.description} style={{flex:1}}/>} keyExtractor={(item)=>item.id.toString()}/>
       </Card>
     </SafeAreaView>
   );
