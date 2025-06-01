@@ -1,26 +1,37 @@
 import { Card } from "@/components/Card";
 import { MissionCard } from "@/components/Mission/MissionCard";
+import { Row } from "@/components/Row";
+import { SearchBar } from "@/components/SearchBar";
 import { ThemedeText } from "@/components/ThemedText";
 import { useThemeColors } from "@/hooks/useThemeColor";
-import { FlatList, Image, StyleSheet, View } from "react-native";
+import { useState } from "react";
+import { FlatList, Image, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
     const colors = useThemeColors()
     const mission = Array.from({length:20},(_,k)=> ({
-      title : 'Nom Mission',
+      title : 'Mission',
       id: k+1,
       description : 'description',
     }))
+    const [Search, setSearch] = useState('')
+    const filteredMissions = Search ? mission.filter(m =>
+      m.title.toLowerCase().includes(Search.toLowerCase()) ||
+      m.id.toString() === Search
+    ): mission
   return (
     <SafeAreaView style={[styles.container, {backgroundColor: colors.tint}]}>
-      <View style={styles.header}>
+      <Row style={styles.header} gap={16}>
         <Image source={require("@/assets/images/favicon.png")} style={styles.logo}/>
         <ThemedeText variant="headline" color="grayWhite">Mission Disponibles</ThemedeText>
-      </View>
+      </Row>
+      <Row>
+        <SearchBar value={Search} onChange={setSearch}/>
+      </Row>
       <Card style={styles.body}>
         <FlatList 
-        data={mission} 
+        data={mission} // a remplacer par filteredMissions quand on aura L'API 
         contentContainerStyle={[styles.gridgap, styles.list]}
         renderItem={({item})=> <MissionCard id={item.id} title={item.title} description={item.description} style={{flex:1}}/>} keyExtractor={(item)=>item.id.toString()}/>
       </Card>
@@ -31,7 +42,7 @@ export default function Index() {
 const styles = StyleSheet.create({
   container:{
     flex : 1 , 
-    padding: 4
+    padding: 4,
   },
   logo: { 
     width: 32, 
@@ -39,19 +50,18 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   header:{
-    flexDirection : 'row',
-    alignItems: 'center',
-    gap : 16,
-    padding: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8, 
     justifyContent: "center",
   },
   body: {
     flex : 1,
+    marginTop: 16,
   },
   gridgap:{
     gap:8,
   },
   list:{
     padding : 12,
-  }
+  },
 }) 
