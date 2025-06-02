@@ -16,10 +16,10 @@ export default function Index() {
       description : 'description',
     }))
     const [Search, setSearch] = useState('')
-    const filteredMissions = Search ? mission.filter(m =>
+    /*const filteredMissions = Search ? mission.filter(m =>
       m.title.toLowerCase().includes(Search.toLowerCase()) ||
       m.id.toString() === Search
-    ): mission
+    ): mission*/
   return (
     <SafeAreaView style={[styles.container, {backgroundColor: colors.tint}]}>
       <Row style={styles.header} gap={16}>
