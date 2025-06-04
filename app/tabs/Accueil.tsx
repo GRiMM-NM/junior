@@ -10,7 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
     const colors = useThemeColors()
-    const mission = Array.from({length:20},(_,k)=> ({
+    const mission = Array.from({length:15},(_,k)=> ({
       title : 'Mission',
       id: k+1,
       description : 'description',
