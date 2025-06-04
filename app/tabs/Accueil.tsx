@@ -23,7 +23,7 @@ export default function Index() {
   return (
     <SafeAreaView style={[styles.container, {backgroundColor: colors.tint}]}>
       <Row style={styles.header} gap={16}>
-        <Image source={require("@/assets/images/favicon.png")} style={styles.logo}/>
+        <Image source={require("@/assets/images/EPF_Projets_Logo.png")} style={styles.logo}/>
         <ThemedeText variant="headline" color="grayWhite">Mission Disponibles</ThemedeText>
       </Row>
       <Row>

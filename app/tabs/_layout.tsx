@@ -44,6 +44,16 @@ export default function menu(){
                             opacity: focused ? 1 : 0.4
                         }}/>
                 }}/>
+                <Tabs.Screen name = 'Connexion'
+                options={{
+                    tabBarIcon:({focused, color, size}) =>
+                        <Image source ={require('@/assets/images/👤.png')}
+                        style={{
+                            width: size,
+                            height: size,
+                            opacity: focused ? 1 : 0.4
+                        }}/>
+                }}/>
           </Tabs>
     )
 
