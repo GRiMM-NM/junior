@@ -34,6 +34,7 @@ export default function menu(){
                             opacity: focused ? 1 : 0.4
                         }}/>
                 }}/>
+                <Tabs.Screen name="Accueil" />
                 <Tabs.Screen name = 'Profile'
                 options={{
                     tabBarIcon:({focused, color, size}) =>

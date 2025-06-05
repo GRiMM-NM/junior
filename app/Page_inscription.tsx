@@ -1,3 +1,4 @@
+import type { RootStackParamList } from '@/navigation/RootNavigator'; // à adapter selon le chemin
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
 import {
@@ -11,7 +12,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import type { RootStackParamList } from './Connexion'; // à adapter selon le chemin
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Page_inscription'>;
 

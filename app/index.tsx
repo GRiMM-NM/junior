@@ -1,4 +1,6 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { RootStackParamList } from '@/navigation/RootNavigator'; // remplace par le bon chemin
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
 import {
   KeyboardAvoidingView,
@@ -13,19 +15,11 @@ import {
 } from 'react-native';
 
 
-export type RootStackParamList = {
-  Home: undefined;
-  Mdp_oublie: undefined;
-  Page_inscription: undefined;
-};
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
-type HomeScreenProps = {
-  navigation: any;
-};
-
-function HomeScreen({ navigation }: HomeScreenProps) {
+export function HomeScreen() {
+  const navigation = useNavigation<HomeScreenNavigationProp>();
   const [texte, setTexte] = useState('');
   const [texte1, setTexte1] = useState('');
 
@@ -102,18 +96,6 @@ function HomeScreen({ navigation }: HomeScreenProps) {
   );
 }
 
-/*export default function App() {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home" >
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Mdp_oublie" component={Mdp_oublie} />
-        <Stack.Screen name="Page_inscription" component={Page_inscription} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-}*/
-
 const styles = StyleSheet.create({
   paragraph: {
     margin: 24,
@@ -173,3 +155,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+export default HomeScreen;
