@@ -1,7 +1,9 @@
+import { Row } from '@/components/Row';
 import type { RootStackParamList } from '@/navigation/RootNavigator'; // à adapter selon le chemin
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
 import {
+  Image,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
@@ -32,7 +34,12 @@ export default function Page_inscription({ navigation }: Props) {
           contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
         >
-          <Text style={styles.paragraph}>Nouveau compte</Text>
+          <Row>
+            <TouchableOpacity onPress={()=> navigation.navigate('Accueil')}>
+              <Image source={require("@/assets/images/arrow_back.png")}/>
+            </TouchableOpacity>
+            <Text style={styles.paragraph}>Nouveau compte</Text>
+          </Row>
 
           <Text style={styles.infos}>Nom et prénom</Text>
           <View style={styles.container1}>

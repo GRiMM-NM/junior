@@ -1,21 +1,18 @@
 
 import { UserProvider } from '@/UserContext';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Text } from 'react-native';
 
-
-
+import Accueil from '@/app/Accueil';
+import AideScreen from '@/app/AideScreen';
 import { HomeScreen } from '@/app/index';
-import Mdp_oublie from '@/app/Mdp_oublie';
-import Page_inscription from '@/app/Page_inscription';
-import Accueil from '@/app/tabs/Accueil';
-import ProfilScreen from '@/app/tabs/Profile';
-import AideScreen from '@/app/tabs/profileSreens/AideScreen';
+import ProfilScreen from '@/app/Profile';
 import ConfidentialiteScreen from '@/app/tabs/profileSreens/ConfidentialitéScreen';
 import DeconnexionScreen from '@/app/tabs/profileSreens/deconnexionScreen';
 import MissionsRecemmentScreen from '@/app/tabs/profileSreens/HistoriqueScreen';
 import ModifierProfilScreen from '@/app/tabs/profileSreens/modifierProfil';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
 
 
 
@@ -40,11 +37,12 @@ export type TabParamList = {
   Profil: undefined;
 };
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator<TabParamList>();
 
 function Tabs(){
     return(
+        <NavigationContainer>
         <Tab.Navigator screenOptions={{headerShown: false}}>
             <Tab.Screen         
             name="Accueil"
@@ -69,11 +67,9 @@ function Tabs(){
             component={ProfilScreen}
             options={{
                 tabBarIcon: ({ color, size, focused }) => <Text style={{ fontSize: size,opacity: focused ? 1 : 0.4 }}>👤</Text>,
-            }}/>
-            
-
-                                    
+            }}/>                           
         </Tab.Navigator>
+        </NavigationContainer>
     )
 }
 
@@ -83,11 +79,9 @@ export function RootNavigator(){
         <UserProvider>
             <Stack.Navigator screenOptions={{headerShown: false,}} initialRouteName='Home'>
                 <Stack.Screen name="Home" component={HomeScreen}/>
-                <Stack.Screen name="Tabs" component={Tabs} />
+                <Stack.Screen name="Tabs" component={Tabs} /> 
                 <Stack.Screen name="Profile" component={ProfilScreen}/>
-                <Stack.Screen name="Mdp_oublie" component={Mdp_oublie}/>
-                <Stack.Screen name="Page_inscription" component={Page_inscription}/>
-                <Stack.Screen name="Accueil" component={Accueil}/>
+             {/*<Stack.Screen name="Accueil" component={Accueil}/>*/}
                 <Stack.Screen name="ModifierProfil" component={ModifierProfilScreen} />
                 <Stack.Screen name="MissionsRecemment" component={MissionsRecemmentScreen} />
                 <Stack.Screen name="Confidentialite" component={ConfidentialiteScreen} />

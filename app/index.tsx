@@ -1,3 +1,4 @@
+import { useThemeColors } from "@/hooks/useThemeColor";
 import { RootStackParamList } from '@/navigation/RootNavigator'; // remplace par le bon chemin
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -19,12 +20,13 @@ import {
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
 export function HomeScreen() {
+  const colors = useThemeColors()
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const [texte, setTexte] = useState('');
   const [texte1, setTexte1] = useState('');
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={[{ flex: 1 }, {backgroundColor: colors.tint}]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
@@ -35,7 +37,7 @@ export function HomeScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <Text style={styles.paragraph}>Se connecter</Text>
-          <Text style={styles.paragraph1}>Bienvenu</Text>
+          <Text style={styles.paragraph1}>Bienvenue</Text>
           <Text style={styles.paragraph2}>
             Nous sommes ravis de vous revoir et espérons que vous aurez la
             meilleure expérience d utilisation avec notre application JE

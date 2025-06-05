@@ -4,13 +4,9 @@ import { Row } from "@/components/Row";
 import { SearchBar } from "@/components/SearchBar";
 import { ThemedeText } from "@/components/ThemedText";
 import { useThemeColors } from "@/hooks/useThemeColor";
-import { RootStackParamList } from "@/navigation/RootNavigator";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useState } from "react";
 import { FlatList, Image, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-type Props = NativeStackScreenProps<RootStackParamList, 'Accueil'>;
 
 export default function Accueil() {
     const colors = useThemeColors()
