@@ -35,8 +35,12 @@ interface OptionProps {
 }
 
 export default function ProfilScreen(): JSX.Element {
-  const { imageUri, setImageUri } = useContext(UserContext);
+  const context = useContext(UserContext);
+  if (!context) throw new Error("ProfilScreen must be wrapped in a UserProvider");
+  const { imageUri, setImageUri } = context;
   const navigation = useNavigation<NavigationProp>();
+
+  console.log("imageUri disponible ? ", imageUri);
 
   const pickImage = async () => {
     const openCamera = async () => {
