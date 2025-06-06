@@ -3,6 +3,7 @@ import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as ImagePicker from 'expo-image-picker';
+import { useRouter } from 'expo-router';
 import React, { JSX, useContext } from 'react';
 import {
   ActionSheetIOS,
@@ -17,7 +18,6 @@ import {
   View,
 } from 'react-native';
 
-// Typage navigation
 type RootStackParamList = {
   ModifierProfil: undefined;
   MissionsRecemment: undefined;
@@ -35,12 +35,11 @@ interface OptionProps {
 }
 
 export default function ProfilScreen(): JSX.Element {
+  const router = useRouter();
   const context = useContext(UserContext);
   if (!context) throw new Error("ProfilScreen must be wrapped in a UserProvider");
   const { imageUri, setImageUri } = context;
   const navigation = useNavigation<NavigationProp>();
-
-  console.log("imageUri disponible ? ", imageUri);
 
   const pickImage = async () => {
     const openCamera = async () => {
@@ -101,59 +100,73 @@ export default function ProfilScreen(): JSX.Element {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.header}>Mon Profil</Text>
+
       <View style={styles.avatarContainer}>
-        <TouchableOpacity onPress={pickImage}>
+        <TouchableOpacity onPress={pickImage} activeOpacity={0.7}>
           {imageUri ? (
             <Image source={{ uri: imageUri } as ImageSourcePropType} style={styles.avatar} />
           ) : (
-            <View style={styles.avatar} />
+            <View style={styles.avatarPlaceholder}>
+              <FontAwesome name="user" size={60} color="#9BB1BC" />
+            </View>
           )}
         </TouchableOpacity>
-        <Text style={styles.editPhoto}>modifier la photo</Text>
+        <Text style={styles.editPhoto}>Modifier la photo</Text>
       </View>
 
-      <ScrollView style={styles.options}>
+      <ScrollView style={styles.options} showsVerticalScrollIndicator={false}>
         <Option
           icon={<FontAwesome name="user" size={24} color="#075B7A" />}
           label="Modifier le profil"
-          onPress={() => navigation.navigate('ModifierProfil')}
+          onPress={() => router.push('/modifierProfil')}
         />
         <Option
-          icon={<FontAwesome name="heart-o" size={24} color="#075B7A" />}
+          icon={<FontAwesome name="history" size={24} color="#075B7A" />}
           label="Missions récemment consultées"
-          onPress={() => navigation.navigate('MissionsRecemment')}
+          onPress={() => router.push('/HistoriqueScreen')}
         />
         <Option
-          icon={<Feather name="lock" size={24} color="#075B7A" />}
+          icon={<FontAwesome name="lock" size={24} color="#075B7A" />}
           label="Confidentialité du compte"
-          onPress={() => navigation.navigate('Confidentialite')}
+          onPress={() => router.push('/ConfidentialiteScreen')}
         />
         <Option
-          icon={<Feather name="settings" size={24} color="#075B7A" />}
-          label="Réglage"
-          onPress={() => {}}
-        />
-        <Option
-          icon={<Feather name="help-circle" size={24} color="#075B7A" />}
+          icon={<FontAwesome name="question-circle" size={24} color="#075B7A" />}
           label="Aide"
-          onPress={() => navigation.navigate('Aide')}
+          onPress={() => router.push('/AideScreen')}
         />
         <Option
-          icon={<Feather name="log-out" size={24} color="#075B7A" />}
+          icon={<FontAwesome name="sign-out" size={24} color="#D9534F" />}
           label="Se déconnecter"
-          onPress={() => navigation.navigate('Deconnexion')}
+          onPress={() => router.push('/deconnexionScreen')}
         />
       </ScrollView>
+
+      <View style={styles.bottomBar}>
+        <TouchableOpacity onPress={() => router.push('/Profile')}>
+          <FontAwesome name="user" size={28} color="#075B7A" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('/Accueil')}>
+          <FontAwesome name="home" size={28} color="#075B7A" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('/Articles')}>
+          <FontAwesome name="book" size={28} color="#075B7A" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('/Evenement')}>
+          <FontAwesome name="calendar" size={28} color="#075B7A" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
 
 const Option: React.FC<OptionProps> = ({ icon, label, onPress }) => {
   return (
-    <TouchableOpacity style={styles.optionRow} onPress={onPress}>
+    <TouchableOpacity style={styles.optionRow} onPress={onPress} activeOpacity={0.7}>
       <View style={styles.iconWrapper}>{icon}</View>
       <Text style={styles.optionLabel}>{label}</Text>
-      <Feather name="chevron-right" size={24} color="#075B7A" />
+      <Feather name="chevron-right" size={20} color="#075B7A" />
     </TouchableOpacity>
   );
 };
@@ -161,45 +174,84 @@ const Option: React.FC<OptionProps> = ({ icon, label, onPress }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
-    paddingTop: 60,
+    backgroundColor: '#F9FCFD',
+    paddingTop: 50,
+    paddingHorizontal: 20,
+  },
+  header: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#075B7A',
+    marginBottom: 20,
+    alignSelf: 'center',
   },
   avatarContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 25,
   },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#5CA9B0',
+    width: 110,
+    height: 110,
+    borderRadius: 55,
     borderWidth: 3,
     borderColor: '#075B7A',
     resizeMode: 'cover',
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 3 },
+  },
+  avatarPlaceholder: {
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    backgroundColor: '#DDE7EB',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   editPhoto: {
-    marginTop: 10,
+    marginTop: 8,
     color: '#075B7A',
     fontSize: 16,
+    fontWeight: '600',
   },
   options: {
-    paddingHorizontal: 20,
+    flex: 1,
   },
   optionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5FBFD',
-    padding: 15,
-    marginBottom: 10,
-    borderRadius: 10,
+    backgroundColor: '#E6F1F4',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    marginBottom: 12,
+    borderRadius: 12,
     justifyContent: 'space-between',
   },
   iconWrapper: {
-    marginRight: 10,
+    marginRight: 15,
   },
   optionLabel: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 17,
     color: '#075B7A',
+    fontWeight: '600',
+  },
+  bottomBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 65,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#D1D9DE',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: -3 },
   },
 });

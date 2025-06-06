@@ -1,6 +1,6 @@
 
 import AideScreen from '@/app/AideScreen';
-import ConfidentialiteScreen from '@/app/ConfidentialitéScreen';
+import ConfidentialiteScreen from '@/app/ConfidentialiteScreen';
 import DeconnexionScreen from '@/app/deconnexionScreen';
 import MissionsRecemmentScreen from '@/app/HistoriqueScreen';
 import { HomeScreen } from '@/app/index';
