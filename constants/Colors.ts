@@ -14,7 +14,8 @@ export const Colors = {
         darkBlue: "#12303F",     // très foncé, mais garde une teinte bleutée
         garybackground: "#121212", // fond sombre neutre (standard du dark mode)
         grayLight: "#AAAAAA",    // gris clair pour le texte secondaire
-        grayWhite: "#F5F5F5",    // quasi blanc, bon pour le texte principal sur fond sombre
+        grayWhite: "#F5F5F5",
+        black: "#000"    // quasi blanc, bon pour le texte principal sur fond sombre
     },
     type:{
         openGreen : "#74CB48",
