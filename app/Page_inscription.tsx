@@ -1,6 +1,5 @@
 import { Row } from '@/components/Row';
-import type { RootStackParamList } from '@/navigation/RootNavigator'; // à adapter selon le chemin
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Image,
@@ -15,9 +14,9 @@ import {
   View,
 } from 'react-native';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Page_inscription'>;
+export default function PageInscription() {
+  const router = useRouter();
 
-export default function Page_inscription({ navigation }: Props) {
   const [texte, setTexte] = useState('');
   const [texte1, setTexte1] = useState('');
   const [texte2, setTexte2] = useState('');
@@ -35,8 +34,8 @@ export default function Page_inscription({ navigation }: Props) {
           keyboardShouldPersistTaps="handled"
         >
           <Row>
-            <TouchableOpacity onPress={()=> navigation.navigate('Accueil')}>
-              <Image source={require("@/assets/images/arrow_back.png")}/>
+            <TouchableOpacity onPress={() => router.push('/Accueil')}>
+              <Image source={require('@/assets/images/arrow_back.png')} />
             </TouchableOpacity>
             <Text style={styles.paragraph}>Nouveau compte</Text>
           </Row>
@@ -48,6 +47,7 @@ export default function Page_inscription({ navigation }: Props) {
               placeholder="NOM Prénom"
               value={texte}
               onChangeText={setTexte}
+              placeholderTextColor="#ffffffaa"
             />
 
             <Text style={styles.infos1}>Date de naissance</Text>
@@ -56,6 +56,7 @@ export default function Page_inscription({ navigation }: Props) {
               placeholder="DD/MM/AAAA"
               value={texte1}
               onChangeText={setTexte1}
+              placeholderTextColor="#ffffffaa"
             />
 
             <Text style={styles.infos1}>Adresse e-mail</Text>
@@ -64,6 +65,7 @@ export default function Page_inscription({ navigation }: Props) {
               placeholder="exemple@gmail.com"
               value={texte2}
               onChangeText={setTexte2}
+              placeholderTextColor="#ffffffaa"
             />
 
             <Text style={styles.infos1}>Mot de passe</Text>
@@ -73,13 +75,14 @@ export default function Page_inscription({ navigation }: Props) {
               value={texte3}
               onChangeText={setTexte3}
               secureTextEntry
+              placeholderTextColor="#ffffffaa"
             />
           </View>
 
           <View style={styles.container1}>
             <TouchableOpacity
               style={styles.card1}
-              onPress={() => navigation.navigate('Home')}
+              onPress={() => router.push('/Accueil')}
             >
               <Text style={{ color: '#FFFFFF', textAlign: 'center' }}>Se connecter</Text>
             </TouchableOpacity>

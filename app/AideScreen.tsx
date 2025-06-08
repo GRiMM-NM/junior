@@ -2,12 +2,12 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { JSX, useState } from 'react';
 import {
-    Linking,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Linking,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 type RootStackParamList = {
@@ -61,7 +61,7 @@ export default function AideScreen({ navigation }: Props): JSX.Element {
       {/* Infos supplémentaires */}
       <Text style={styles.hintText}>
         Vous pouvez poser une question sur Google ou visiter notre centre
-        d aide pour plus d informations.
+        d aide pour plus d’informations.
       </Text>
     </View>
   );
