@@ -8,19 +8,19 @@ const pool = mysql.createPool({
   database: process.env.MYSQL_DATABASE,
 });
 
-interface QuoteRow {
-  text: string;
-}
+ interface QuoteRow {
+   text: string;
+ }
 
-export const getQuotes = functions.https.onRequest(async (req, res) => {
-  try {
-    const [rows] = await pool.query(
-      'SELECT text FROM Utilisateur-quotes'
-    );
-    const quotes = (rows as QuoteRow[]).map(row => row.text);
-    res.status(200).json({ quotes });
-  } catch (err) {
-    console.error('Erreur MySQL', err);
-    res.status(500).send('Erreur MySQL');
-  }
-});
+ export const getQuotes = functions.https.onRequest(async (req, res) => {
+   try {
+     const [rows] = await pool.query(
+       'SELECT nom FROM Utilisateur'
+     );
+     const quotes = (rows as QuoteRow[]).map(row => row.text);
+     res.status(200).json({ quotes });
+   } catch (err) {
+     console.error('Erreur MySQL', err);
+     res.status(500).send('Erreur MySQL');
+   }
+ });

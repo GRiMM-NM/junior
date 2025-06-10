@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "jsx": "react-native",
+    "types": ["react", "react-native"],
+    "target": "esnext",
+    "module": "esnext",
+    "lib": ["esnext"],
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "allowJs": true,
+    "skipLibCheck": true
+  },
+  "include": ["**/*.ts", "**/*.tsx"]
+}

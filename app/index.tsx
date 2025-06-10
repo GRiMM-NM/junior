@@ -29,7 +29,7 @@ export default function DeuxPage() {
   return (
     <SafeAreaView style={styles.container}>
       <Animated.Image
-        source={require('@/assets/images/logo_Blanc.png')}
+        source={require('./../assets/images/logo_Blanc.png')}
         style={[styles.logo, { transform: [{ rotate: spin }] }]}
       />
       <Text style={styles.paragraph2}>

@@ -1,12 +1,8 @@
-import { Card } from "@/components/Card";
-import { Row } from "@/components/Row";
-import { SearchBar } from "@/components/SearchBar";
-import { ThemedeText } from "@/components/ThemedText";
-import { useThemeColors } from "@/hooks/useThemeColor";
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
+  Animated,
   FlatList,
   KeyboardAvoidingView,
   Modal,
@@ -20,6 +16,11 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Card } from "./../components/Card";
+import { Row } from "./../components/Row";
+import { SearchBar } from "./../components/SearchBar";
+import { ThemedeText } from "./../components/ThemedText";
+import { useThemeColors } from "./../hooks/useThemeColor";
 
 interface ArticleItem {
   id: number;
@@ -43,6 +44,18 @@ export default function Articles() {
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
 
+  // Animation du bouton +
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(scaleAnim, { toValue: 1.1, duration: 800, useNativeDriver: true }),
+        Animated.timing(scaleAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
+      ])
+    ).start();
+  }, []);
+
   const filteredArticles = articles.filter((article) =>
     article.title.toLowerCase().includes(search.toLowerCase())
   );
@@ -63,14 +76,12 @@ export default function Articles() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.tint }]}>
-      <Row style={styles.header}>
-        <ThemedeText variant="subtitle2" style={styles.title}>
+      {/* Titre centré */}
+      <View style={styles.header}>
+        <ThemedeText variant="subtitle2" style={styles.title} color={'grayWhite'}>
           Articles
         </ThemedeText>
-        <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-      </Row>
+      </View>
 
       <Row>
         <SearchBar value={search} onChange={setSearch} />
@@ -97,6 +108,13 @@ export default function Articles() {
           />
         )}
       </Card>
+
+      {/* Bouton flottant + animé */}
+      <Animated.View style={[styles.floatingButton, { transform: [{ scale: scaleAnim }] }]}>
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
+          <Text style={styles.addButtonText}>+</Text>
+        </TouchableOpacity>
+      </Animated.View>
 
       {/* Modal pour ajouter un article */}
       <Modal visible={modalVisible} transparent animationType="slide">
@@ -136,16 +154,16 @@ export default function Articles() {
       {/* Barre de menu */}
       <View style={styles.bottomBar}>
         <TouchableOpacity onPress={() => router.push("/Profile")}>
-          <FontAwesome name="user" size={24} color="black" />
+          <FontAwesome name="user" size={24} color="#075B7A" />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.push("/Accueil")}>
-          <FontAwesome name="home" size={24} color="black" />
+          <FontAwesome name="home" size={24} color="#075B7A" />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.push("/Articles")}>
-          <FontAwesome name="book" size={24} color="black" />
+          <FontAwesome name="book" size={24} color="#075B7A" />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.push("/Evenement")}>
-          <FontAwesome name="calendar" size={24} color="black" />
+          <FontAwesome name="calendar" size={24} color="#075B7A" />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -158,27 +176,14 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   header: {
-    marginBottom: 12,
-    justifyContent: "space-between",
     alignItems: "center",
-    flexDirection: "row",
+    marginBottom: 12,
   },
   title: {
     fontWeight: "bold",
     fontSize: 24,
-  },
-  addButton: {
-    backgroundColor: "#15ACCD",
-    borderRadius: 20,
-    width: 36,
-    height: 36,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  addButtonText: {
-    color: "white",
-    fontSize: 24,
-    fontWeight: "bold",
+    textAlign: "center",
+    paddingTop : Platform.OS === "ios" ? 40:20,
   },
   body: {
     flex: 1,
@@ -209,15 +214,38 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 60,
+    height: 65,
     backgroundColor: "#fff",
     borderTopWidth: 1,
-    borderTopColor: "#ccc",
+    borderTopColor: "#D1D9DE",
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    paddingBottom: 8,
-    paddingTop: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: -3 },
+  },
+  floatingButton: {
+    position: "absolute",
+    bottom: 80,
+    right: 20,
+    backgroundColor: "#15ACCD",
+    borderRadius: 30,
+    width: 60,
+    height: 60,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 5,
+  },
+  addButtonText: {
+    color: "white",
+    fontSize: 30,
+    fontWeight: "bold",
   },
   modalWrapper: {
     flex: 1,

@@ -1,9 +1,3 @@
-import { Card } from "@/components/Card";
-import { MissionCard } from "@/components/Mission/MissionCard";
-import { Row } from "@/components/Row";
-import { SearchBar } from "@/components/SearchBar";
-import { ThemedeText } from "@/components/ThemedText";
-import { useThemeColors } from "@/hooks/useThemeColor";
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -22,6 +16,12 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Card } from "./../components/Card";
+import { MissionCard } from "./../components/Mission/MissionCard";
+import { Row } from "./../components/Row";
+import { SearchBar } from "./../components/SearchBar";
+import { ThemedeText } from "./../components/ThemedText";
+import { useThemeColors } from "./../hooks/useThemeColor";
 
 interface Mission {
   id: number;
@@ -67,18 +67,15 @@ export default function Accueil() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.tint }]}>
-      <Row style={styles.header} gap={16}>
+      <View style={styles.header}>
         <Image
-          source={require("@/assets/images/EPF_Projets_Logo.png")}
+          source={require("./../assets/images/EPF_Projets_Logo.png")}
           style={styles.logo}
         />
-        <ThemedeText variant="headline" color="grayWhite" style={{ flex: 1 }}>
+        <ThemedeText variant="headline" color="grayWhite" style={styles.title}>
           Missions Disponibles
         </ThemedeText>
-        <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-      </Row>
+      </View>
 
       <Row>
         <SearchBar value={search} onChange={setSearch} />
@@ -111,6 +108,14 @@ export default function Accueil() {
           />
         )}
       </Card>
+
+      {/* BOUTON AJOUT FLOTTANT */}
+      <TouchableOpacity
+        onPress={() => setModalVisible(true)}
+        style={styles.floatingButton}
+      >
+        <Text style={styles.floatingButtonText}>+</Text>
+      </TouchableOpacity>
 
       {/* MODAL AJOUT MISSION */}
       <Modal visible={modalVisible} transparent animationType="slide">
@@ -150,21 +155,22 @@ export default function Accueil() {
       {/* BARRE DE MENU */}
       <View style={styles.bottomBar}>
         <TouchableOpacity onPress={() => router.push("/Profile")}>
-          <FontAwesome name="user" size={24} color="black" />
+          <FontAwesome name="user" size={24} color="#075B7A" />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.push("/Accueil")}>
-          <FontAwesome name="home" size={24} color="black" />
+          <FontAwesome name="home" size={24} color="#075B7A" />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.push("/Articles")}>
-          <FontAwesome name="book" size={24} color="black" />
+          <FontAwesome name="book" size={24} color="#075B7A" />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.push("/Evenement")}>
-          <FontAwesome name="calendar" size={24} color="black" />
+          <FontAwesome name="calendar" size={24} color="#075B7A" />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -177,11 +183,18 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   header: {
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 12,
     paddingVertical: 8,
     justifyContent: "center",
-    flexDirection: "row",
-    alignItems: "center",
+  },
+    title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    textAlign: "center",
+    flex: 1,
+    marginLeft: 12,
   },
   addButton: {
     backgroundColor: "#15ACCD",
@@ -221,19 +234,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   bottomBar: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: 60,
-    backgroundColor: "#fff",
+    height: 65,
+    backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: "#ccc",
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    paddingBottom: 8,
-    paddingTop: 8,
+    borderTopColor: '#D1D9DE',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: -3 },
   },
   modalWrapper: {
     flex: 1,
@@ -281,4 +296,26 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     alignItems: "center",
   },
+    floatingButton: {
+    position: "absolute",
+    bottom: 80, // au-dessus de la barre de menu
+    right: 20,
+    backgroundColor: "#15ACCD",
+    borderRadius: 28,
+    width: 56,
+    height: 56,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 6,
+  },
+  floatingButtonText: {
+    color: "white",
+    fontSize: 32,
+    fontWeight: "bold",
+    marginTop: -2,
+  }
 });

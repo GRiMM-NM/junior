@@ -1,8 +1,8 @@
-import { useThemeColors } from "@/hooks/useThemeColor";
 import { Link } from "expo-router";
 import { Pressable, StyleSheet, View, type ViewStyle } from "react-native";
 import { Card } from "../Card";
 import { ThemedeText } from "../ThemedText";
+import { useThemeColors } from "./../../hooks/useThemeColor";
 
 type Props = {
     style? : ViewStyle,

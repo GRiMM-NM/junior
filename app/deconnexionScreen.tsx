@@ -1,33 +1,22 @@
 import { Ionicons } from '@expo/vector-icons';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useRouter } from 'expo-router';
 import React, { JSX } from 'react';
 import {
-    BackHandler,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  BackHandler,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
-type RootStackParamList = {
-  Profil: undefined;
-  Deconnexion: undefined;
-  // autres écrans si besoin
-};
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
-interface Props {
-  navigation: NavigationProp;
-}
-
-export default function DeconnexionScreen({ navigation }: Props): JSX.Element {
+export default function DeconnexionScreen(): JSX.Element {
   const handleExit = () => {
     BackHandler.exitApp(); // Ferme l'app (Android uniquement)
   };
+  const router = useRouter();
 
   const handleCancel = () => {
-    navigation.goBack(); // Retour à l'écran précédent (Profil)
+    router.back(); // Retour à l'écran précédent (Profil)
   };
 
   return (

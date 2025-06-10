@@ -2,16 +2,16 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Keyboard,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from 'react-native';
 
 const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
@@ -140,16 +140,16 @@ export default function Evenement() {
           </View>
         <View style={styles.bottomBar}>
         <TouchableOpacity onPress={() => router.push('/Profile')}>
-            <FontAwesome name="user" size={24} color="black" />
+            <FontAwesome name="user" size={24} color="#075B7A" />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.push('/Accueil')}>
-            <FontAwesome name="home" size={24} color="black" />
+            <FontAwesome name="home" size={24} color="#075B7A" />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.push('/Articles')}>
-            <FontAwesome name="book" size={24} color="black" />
+            <FontAwesome name="book" size={24} color="#075B7A" />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.push('/Evenement')}>
-            <FontAwesome name="calendar" size={24} color="black" />
+            <FontAwesome name="calendar" size={24} color="#075B7A" />
         </TouchableOpacity>
       </View>
         </ScrollView>
@@ -269,14 +269,16 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 60,
+    height: 65,
     backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: '#ccc',
+    borderTopColor: '#D1D9DE',
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingBottom: 8,
-    paddingTop: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: -3 },
   },
 });

@@ -2,17 +2,20 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "jsx": "react-native",
+    "module": "Node16",                                // ✅ Obligatoire avec node16
+    "moduleResolution": "node16",                      // ✅ Résolution moderne
+    "customConditions": ["react-native"],              // ✅ Utile avec React Native
+    "types": ["react", "react-native"],
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "strict": true,
-    "paths": {
-      "@/*": [
-        "./*"
-      ]
-    }
+    "skipLibCheck": true
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "expo-env.d.ts",
+    "src"
   ]
 }

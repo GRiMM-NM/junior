@@ -1,4 +1,3 @@
-import { useThemeColors } from '@/hooks/useThemeColor';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -12,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useThemeColors } from './../hooks/useThemeColor';
 
 export default function HomeScreen() {
   const colors = useThemeColors();

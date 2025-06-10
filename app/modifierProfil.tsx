@@ -1,7 +1,5 @@
-import { UserContext } from '@/UserContext';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useRouter } from 'expo-router';
 import React, { JSX, useContext } from 'react';
 import {
   Image,
@@ -11,21 +9,16 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
-type RootStackParamList = {
-  Profil: undefined;
-};
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+import { UserContext } from './../UserContext';
 
 export default function ModifierProfilScreen(): JSX.Element {
   const { imageUri } = useContext(UserContext);
-  const navigation = useNavigation<NavigationProp>();
+  const router = useRouter();
 
   return (
     <View style={styles.container}>
       {/* Bouton retour */}
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
         <Ionicons name="chevron-back" size={30} color="#0D99B2" />
       </TouchableOpacity>
 

@@ -1,5 +1,5 @@
 import { Feather, Ionicons } from '@expo/vector-icons';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useRouter } from 'expo-router';
 import React, { JSX, useState } from 'react';
 import {
   Linking,
@@ -10,18 +10,7 @@ import {
   View,
 } from 'react-native';
 
-type RootStackParamList = {
-  Aide: undefined;
-  // autres écrans si besoin
-};
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
-interface Props {
-  navigation: NavigationProp;
-}
-
-export default function AideScreen({ navigation }: Props): JSX.Element {
+export default function AideScreen(): JSX.Element {
   const [query, setQuery] = useState<string>('');
 
   const handleSearch = () => {
@@ -30,12 +19,13 @@ export default function AideScreen({ navigation }: Props): JSX.Element {
       Linking.openURL(url);
     }
   };
+  const router = useRouter();
 
   return (
     <View style={styles.container}>
       {/* Bouton retour */}
       <TouchableOpacity
-        onPress={() => navigation.goBack()}
+        onPress={() => router.back()}
         style={styles.backButton}
       >
         <Ionicons name="chevron-back" size={30} color="#0D99B2" />
@@ -75,6 +65,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginBottom: 10,
+    marginTop: 12,
   },
   title: {
     fontSize: 22,

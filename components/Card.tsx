@@ -1,6 +1,6 @@
-import { Shadows } from "@/constants/Shadows";
-import { useThemeColors } from "@/hooks/useThemeColor";
 import { View, ViewStyle, type ViewProps } from "react-native";
+import { Shadows } from "./../constants/Shadows";
+import { useThemeColors } from "./../hooks/useThemeColor";
 
 type Props = ViewProps
 

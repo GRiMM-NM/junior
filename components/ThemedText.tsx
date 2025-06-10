@@ -1,6 +1,6 @@
-import { Colors } from "@/constants/Colors";
-import { useThemeColors } from "@/hooks/useThemeColor";
 import { StyleSheet, Text, type TextProps } from "react-native";
+import { Colors } from "./../constants/Colors";
+import { useThemeColors } from "./../hooks/useThemeColor";
 
 const styles = StyleSheet.create({
     body3 : {

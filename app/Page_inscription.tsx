@@ -1,4 +1,3 @@
-import { Row } from '@/components/Row';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -13,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Row } from './../components/Row';
 
 export default function PageInscription() {
   const router = useRouter();
@@ -35,7 +35,7 @@ export default function PageInscription() {
         >
           <Row>
             <TouchableOpacity onPress={() => router.push('/Accueil')}>
-              <Image source={require('@/assets/images/arrow_back.png')} />
+              <Image source={require('./../assets/images/arrow_back.png')} />
             </TouchableOpacity>
             <Text style={styles.paragraph}>Nouveau compte</Text>
           </Row>

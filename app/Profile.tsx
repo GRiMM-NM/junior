@@ -1,7 +1,4 @@
-import { UserContext } from '@/UserContext';
 import { Feather, FontAwesome } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import React, { JSX, useContext } from 'react';
@@ -17,16 +14,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
-type RootStackParamList = {
-  ModifierProfil: undefined;
-  MissionsRecemment: undefined;
-  Confidentialite: undefined;
-  Aide: undefined;
-  Deconnexion: undefined;
-};
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+import { UserContext } from './../UserContext';
 
 interface OptionProps {
   icon: React.ReactNode;
@@ -39,7 +27,6 @@ export default function ProfilScreen(): JSX.Element {
   const context = useContext(UserContext);
   if (!context) throw new Error("ProfilScreen must be wrapped in a UserProvider");
   const { imageUri, setImageUri } = context;
-  const navigation = useNavigation<NavigationProp>();
 
   const pickImage = async () => {
     const openCamera = async () => {

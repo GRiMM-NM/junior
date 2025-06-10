@@ -1,36 +1,26 @@
-import { Ionicons } from '@expo/vector-icons';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { JSX } from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import React, { JSX } from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from 'react-native';
-
-// Typage de la navigation
-type RootStackParamList = {
-  MissionsRecemment: undefined;
-  // Ajoute ici d'autres écrans si nécessaire
-};
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
-interface Props {
-  navigation: NavigationProp;
-}
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 interface MissionCardProps {
   titre: string;
   description: string;
 }
 
-export default function MissionsRecemmentScreen({ navigation }: Props): JSX.Element {
+export default function MissionsRecemment(): JSX.Element {
+  const router = useRouter();
+
   return (
     <View style={styles.container}>
       {/* Bouton retour */}
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
         <Ionicons name="chevron-back" size={30} color="#0D99B2" />
       </TouchableOpacity>
 
@@ -59,23 +49,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   backButton: {
     marginBottom: 10,
+    paddingTop: 12,
   },
   title: {
     fontSize: 22,
-    fontWeight: 'bold',
-    color: '#075B7A',
+    fontWeight: "bold",
+    color: "#075B7A",
     marginBottom: 20,
   },
   card: {
-    backgroundColor: '#F5FBFD',
+    backgroundColor: "#F5FBFD",
     borderRadius: 15,
     padding: 20,
     marginBottom: 15,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
@@ -83,12 +74,12 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#075B7A',
+    fontWeight: "600",
+    color: "#075B7A",
     marginBottom: 5,
   },
   cardDescription: {
     fontSize: 14,
-    color: '#333',
+    color: "#333",
   },
 });

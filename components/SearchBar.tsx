@@ -1,5 +1,5 @@
-import { useThemeColors } from "@/hooks/useThemeColor"
 import { Image, StyleSheet, TextInput } from "react-native"
+import { useThemeColors } from "./../hooks/useThemeColor"
 import { Row } from "./Row"
 
 type Props = {
@@ -13,7 +13,7 @@ export function SearchBar ({value, onChange}: Props){
     <Row 
     gap={8}
     style={[styles.wrapper,{backgroundColor: colors.grayWhite}]}>
-        <Image source={require('@/assets/images/search.png')}
+        <Image source={require('./../assets/images/search.png')}
         style={{ width: 16, height: 16 }}
         />
         <TextInput style={styles.input} onChangeText={onChange} value={value}/>
