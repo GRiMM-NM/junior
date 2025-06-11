@@ -1,6 +1,11 @@
+import * as dotenv from 'dotenv';
 import * as functions from 'firebase-functions';
+import { ResultSetHeader } from 'mysql2';
 import * as mysql from 'mysql2/promise';
 
+dotenv.config();
+
+// Connexion à la base de données
 const pool = mysql.createPool({
   host: process.env.MYSQL_HOST,
   user: process.env.MYSQL_USER,
@@ -8,19 +13,83 @@ const pool = mysql.createPool({
   database: process.env.MYSQL_DATABASE,
 });
 
- interface QuoteRow {
-   text: string;
- }
+interface QuoteRow {
+  titre: string;
+  description_Mission: string;
+  statut_Mission: string;
+}
 
- export const getQuotes = functions.https.onRequest(async (req, res) => {
-   try {
-     const [rows] = await pool.query(
-       'SELECT nom FROM Utilisateur'
-     );
-     const quotes = (rows as QuoteRow[]).map(row => row.text);
-     res.status(200).json({ quotes });
-   } catch (err) {
-     console.error('Erreur MySQL', err);
-     res.status(500).send('Erreur MySQL');
-   }
- });
+// 📥 Ajouter une mission
+export const addMission = functions.https.onRequest(async (req, res) => {
+  if (req.method !== 'POST') {
+    res.status(405).send('Méthode non autorisée');
+    return;
+  }
+
+  const { titre, description_Mission } = req.body;
+
+  if (!titre || !description_Mission) {
+    res.status(400).send('Champs manquants');
+    return;
+  }
+
+  try {
+    const [result] = await pool.query(
+      'INSERT INTO mission (titre, description_Mission) VALUES (?, ?)',
+      [titre, description_Mission]
+    );
+
+    const insertResult = result as ResultSetHeader;
+
+    res.status(200).json({ success: true, insertedId: insertResult.insertId });
+  } catch (error) {
+    console.error('Erreur MySQL', error);
+    res.status(500).send('Erreur MySQL');
+  }
+});
+
+// 📤 Récupérer les titres de missions
+export const getTitle_Mission = functions.https.onRequest(async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT titre FROM mission');
+    const quotes = (rows as QuoteRow[]).map(row => row.titre);
+    res.status(200).json({ quotes });
+  } catch (err) {
+    console.error('Erreur MySQL', err);
+    res.status(500).send('Erreur MySQL');
+  }
+});
+
+// 📤 Récupérer les descriptions de missions
+export const getDescription_Mission = functions.https.onRequest(async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT description_Mission FROM mission');
+    const quotes = (rows as QuoteRow[]).map(row => row.description_Mission);
+    res.status(200).json({ quotes });
+  } catch (err) {
+    console.error('Erreur MySQL', err);
+    res.status(500).send('Erreur MySQL');
+  }
+});
+
+export const getstatut_Mission = functions.https.onRequest(async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT statut_Mission FROM mission');
+    const quotes = (rows as QuoteRow[]).map(row => row.statut_Mission);
+    res.status(200).json({ quotes });
+  } catch (err) {
+    console.error('Erreur MySQL', err);
+    res.status(500).send('Erreur MySQL');
+  }
+});
+
+export const getMission = functions.https.onRequest(async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT Id_Mission, titre, description_Mission, date_debut, date_fin, statut_Mission, date_creation_mission FROM mission');
+    res.status(200).json({ mission : rows });
+  } catch (err) {
+    console.error('Erreur MySQL', err);
+    res.status(500).send('Erreur MySQL');
+  }
+});
+

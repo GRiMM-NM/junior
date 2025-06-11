@@ -6,15 +6,12 @@
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "outDir": "lib",
+    "rootDir": "src",        // <-- Assure-toi que ton code source est bien dans /src
     "sourceMap": true,
     "strict": true,
     "target": "es2017",
-    "types": [
-      "node"
-    ]
+    "types": ["node"]
   },
-  "include": [
-    "**/*.ts"
-  ],
-  "extends": "expo/tsconfig.base"
+  "include": ["src"],         // On cible uniquement le code source
+  "exclude": ["lib", "node_modules"]
 }

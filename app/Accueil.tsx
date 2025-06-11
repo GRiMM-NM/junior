@@ -1,6 +1,6 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Image,
@@ -32,38 +32,85 @@ interface Mission {
 export default function Accueil() {
   const router = useRouter();
   const colors = useThemeColors();
-
-  const [missions, setMissions] = useState<Mission[]>(
-    Array.from({ length: 15 }, (_, k) => ({
-      title: `Mission ${k + 1}`,
-      id: k + 1,
-      description: `Description détaillée de la mission ${k + 1}`,
-    }))
-  );
-
+  const [missions, setMissions] = useState<Mission[]>([]);
   const [search, setSearch] = useState("");
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+const fetchMissions = async () => {
+    try {
+      const titleResponse = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/getTitle_Mission");
+      const descResponse = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/getDescription_Mission");
+
+      const titleData = await titleResponse.json();
+      const descData = await descResponse.json();
+
+      if (!titleData.quotes || !descData.quotes) {
+        throw new Error("Format de données inattendu");
+      }
+
+      const missionsData: Mission[] = titleData.quotes.map((title: string, index: number) => ({
+        id: index + 1,
+        title,
+        description: descData.quotes[index] || "",
+      }));
+
+      setMissions(missionsData);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des missions :", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchMissions();
+}, []);
 
   const filteredMissions = missions.filter((m) =>
     m.title.toLowerCase().includes(search.toLowerCase())
   );
 
-  const addMission = () => {
-    if (newTitle.trim() && newDescription.trim()) {
-      const newMission: Mission = {
-        id: missions.length + 1,
-        title: newTitle,
-        description: newDescription,
-      };
-      setMissions([newMission, ...missions]);
-      setNewTitle("");
-      setNewDescription("");
-      setModalVisible(false);
+const addMission = async () => {
+  if (!newTitle.trim() || !newDescription.trim()) return;
+
+  try {
+    const response = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/addMission", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        titre: newTitle,
+        description_Mission: newDescription,
+      }),
+    });
+
+    const text = await response.text(); // on lit même si ce n'est pas du JSON
+    if (!response.ok) {
+      console.error("Réponse non OK :", response.status, text);
+      throw new Error("Erreur lors de l'ajout de la mission");
     }
-  };
+
+    const data = JSON.parse(text);
+    const newMission: Mission = {
+      id: data.insertedId || missions.length + 1,
+      title: newTitle,
+      description: newDescription,
+    };
+
+    setMissions([newMission, ...missions]);
+    setNewTitle("");
+    setNewDescription("");
+    setModalVisible(false);
+  } catch (error) {
+    console.error("Erreur lors de l'ajout de la mission :", error);
+  }
+};
+
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.tint }]}>
@@ -82,7 +129,9 @@ export default function Accueil() {
       </Row>
 
       <Card style={styles.body}>
-        {selectedMission ? (
+        {loading ? (
+          <Text>Chargement des missions...</Text>
+        ) : selectedMission ? (
           <View>
             <Text style={styles.missionTitle}>{selectedMission.title}</Text>
             <Text style={styles.missionContent}>{selectedMission.description}</Text>

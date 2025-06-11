@@ -1,8 +1,5 @@
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  FlatList,
   Image,
   SafeAreaView,
   StyleSheet,
@@ -13,24 +10,6 @@ import {
 
 export default function PageBienvenue() {
   const router = useRouter();
-  const [quotes, setQuotes] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchQuotes() {
-      try {
-        const res = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/getQuotes");
-        const data = await res.json();
-        setQuotes(data.quotes);
-      } catch (error) {
-        console.error("Erreur lors de la récupération des citations :", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchQuotes();
-  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -53,22 +32,6 @@ export default function PageBienvenue() {
           <Text style={styles.buttonText}>S’inscrire</Text>
         </TouchableOpacity>
       </View>
-
-      <Text style={styles.heading}>Citations</Text>
-      {loading ? (
-        <ActivityIndicator size="large" />
-      ) : (
-        <FlatList
-          data={quotes}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.quoteCard}>
-              <Text style={styles.quoteText}>{item}</Text>
-            </View>
-          )}
-          contentContainerStyle={{ paddingBottom: 40 }}
-        />
-      )}
     </SafeAreaView>
   );
 }
