@@ -45,16 +45,18 @@ const fetchMissions = async () => {
     try {
       const titleResponse = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/getTitle_Mission");
       const descResponse = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/getDescription_Mission");
+      const IdResponse = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/getId_Mission")
 
       const titleData = await titleResponse.json();
       const descData = await descResponse.json();
+      const IdData = await IdResponse.json();
 
       if (!titleData.quotes || !descData.quotes) {
         throw new Error("Format de données inattendu");
       }
 
       const missionsData: Mission[] = titleData.quotes.map((title: string, index: number) => ({
-        id: index + 1,
+        id: IdData.quotes[index],
         title,
         description: descData.quotes[index] || "",
       }));
@@ -101,6 +103,7 @@ const addMission = async () => {
       title: newTitle,
       description: newDescription,
     };
+    
 
     setMissions([newMission, ...missions]);
     setNewTitle("");
@@ -178,12 +181,14 @@ const addMission = async () => {
               <TextInput
                 style={styles.input}
                 placeholder="Titre"
+                placeholderTextColor="#075B7A99"
                 value={newTitle}
                 onChangeText={setNewTitle}
               />
               <TextInput
                 style={[styles.input, { height: 100, textAlignVertical: "top" }]}
-                placeholder="Description"
+                placeholder="Description" 
+                placeholderTextColor="#075B7A99"
                 value={newDescription}
                 onChangeText={setNewDescription}
                 multiline

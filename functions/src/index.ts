@@ -17,6 +17,7 @@ interface QuoteRow {
   titre: string;
   description_Mission: string;
   statut_Mission: string;
+  Id_Mission: string;
 }
 
 // 📥 Ajouter une mission
@@ -35,7 +36,7 @@ export const addMission = functions.https.onRequest(async (req, res) => {
 
   try {
     const [result] = await pool.query(
-      'INSERT INTO mission (titre, description_Mission) VALUES (?, ?)',
+      'INSERT INTO mission (Id_Mission, titre, description_Mission, date_debut, date_fin, statut_Mission, date_creation_mission) VALUES (?, ?, ?, ?, ?, ?, ?)',
       [titre, description_Mission]
     );
 
@@ -76,6 +77,17 @@ export const getstatut_Mission = functions.https.onRequest(async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT statut_Mission FROM mission');
     const quotes = (rows as QuoteRow[]).map(row => row.statut_Mission);
+    res.status(200).json({ quotes });
+  } catch (err) {
+    console.error('Erreur MySQL', err);
+    res.status(500).send('Erreur MySQL');
+  }
+});
+
+export const getId_Mission = functions.https.onRequest(async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT Id_Mission FROM mission');
+    const quotes = (rows as QuoteRow[]).map(row => row.Id_Mission);
     res.status(200).json({ quotes });
   } catch (err) {
     console.error('Erreur MySQL', err);

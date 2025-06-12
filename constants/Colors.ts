@@ -6,7 +6,8 @@ export const Colors = {
         garybackground: "#EFEFEF", // fond gris clair
         grayLight: "#555555",    // gris moyen
         grayWhite: "#FFFFFF",    // blanc
-        black: "#000"
+        black: "#000",
+        closeRed : "#C12239",
     },
     dark: {
         tint: "#4FB3D8",         // bleu clair légèrement désaturé pour bon contraste
