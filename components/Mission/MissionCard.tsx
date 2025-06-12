@@ -17,7 +17,7 @@ export function MissionCard({style, id, title, description}: Props){
         <Pressable android_ripple={{color: colors.tint, foreground: true}} style={style}>
             <Card style  ={[styles.card]}>
                 <ThemedeText  style = {styles.id} variant="caption" color="tint">#{id.toString().padStart(3,'0')}</ThemedeText>
-                <ThemedeText variant="headline" color="black">{title} {id.toString()}</ThemedeText>
+                <ThemedeText variant="headline" color="black">{title} </ThemedeText>
                 <ThemedeText color="black">{description}</ThemedeText>
                  <View style={[styles.shadow, {backgroundColor: colors.BlueLight}]}/>
              </Card>

@@ -39,6 +39,9 @@ export default function Accueil() {
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [loading, setLoading] = useState(true);
+  const [dateDebut, setDateDebut] = useState("");
+  const [dateFin, setDateFin] = useState("");
+  const [statutMission, setStatutMission] = useState("");
 
   useEffect(() => {
 const fetchMissions = async () => {
@@ -88,6 +91,9 @@ const addMission = async () => {
       body: JSON.stringify({
         titre: newTitle,
         description_Mission: newDescription,
+        date_debut: dateDebut,
+        date_fin: dateFin,
+        statut_Mission: statutMission
       }),
     });
 
@@ -108,6 +114,9 @@ const addMission = async () => {
     setMissions([newMission, ...missions]);
     setNewTitle("");
     setNewDescription("");
+    setDateDebut("");
+    setDateFin("");
+    setStatutMission("");
     setModalVisible(false);
   } catch (error) {
     console.error("Erreur lors de l'ajout de la mission :", error);
@@ -178,6 +187,7 @@ const addMission = async () => {
           <View style={styles.modalContainer}>
             <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
               <Text style={styles.modalTitle}>Ajouter une mission</Text>
+
               <TextInput
                 style={styles.input}
                 placeholder="Titre"
@@ -185,14 +195,37 @@ const addMission = async () => {
                 value={newTitle}
                 onChangeText={setNewTitle}
               />
+
               <TextInput
                 style={[styles.input, { height: 100, textAlignVertical: "top" }]}
-                placeholder="Description" 
+                placeholder="Description"
                 placeholderTextColor="#075B7A99"
                 value={newDescription}
                 onChangeText={setNewDescription}
                 multiline
               />
+              <TextInput
+                style={styles.input}
+                placeholder="Date de début (YYYY-MM-DD)"
+                placeholderTextColor="#075B7A99"
+                value={dateDebut}
+                onChangeText={setDateDebut}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Date de fin (YYYY-MM-DD)"
+                placeholderTextColor="#075B7A99"
+                value={dateFin}
+                onChangeText={setDateFin}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Statut (ouvert / fermé)"
+                placeholderTextColor="#075B7A99"
+                value={statutMission}
+                onChangeText={setStatutMission}
+              />
+
               <View style={styles.modalButtons}>
                 <TouchableOpacity onPress={addMission} style={styles.modalButtonConfirm}>
                   <Text style={{ color: "#fff" }}>Ajouter</Text>

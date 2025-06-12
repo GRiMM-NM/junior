@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 import * as functions from 'firebase-functions';
-import { ResultSetHeader } from 'mysql2';
 import * as mysql from 'mysql2/promise';
 
 dotenv.config();
@@ -27,22 +26,45 @@ export const addMission = functions.https.onRequest(async (req, res) => {
     return;
   }
 
-  const { titre, description_Mission } = req.body;
+  const { 
+    titre,
+    description_Mission,
+    date_debut,
+    date_fin,
+    statut_Mission,
+   } = req.body;
 
-  if (!titre || !description_Mission) {
+  if (!titre || !description_Mission || !date_debut || !date_fin||! statut_Mission) {
     res.status(400).send('Champs manquants');
     return;
   }
+      const [rows] = await pool.query(
+      'SELECT Id_Mission FROM mission ORDER BY Id_Mission DESC LIMIT 1'
+    ) as [any[], any];
+
+    let newId = 'M0001';
+    if (rows.length > 0) {
+      const lastId = rows[0].Id_Mission;
+      const lastNumber = parseInt(lastId.replace('M', ''), 10);
+      const nextNumber = lastNumber + 1;
+      newId = `M${nextNumber.toString().padStart(4, '0')}`;
+    }
 
   try {
-    const [result] = await pool.query(
+    await pool.query(
       'INSERT INTO mission (Id_Mission, titre, description_Mission, date_debut, date_fin, statut_Mission, date_creation_mission) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [titre, description_Mission]
+      [
+        newId,
+        titre.trim(), 
+        description_Mission.trim(),
+        date_debut.trim(),
+        date_fin.trim(),
+        statut_Mission.trim(),
+        new Date(),
+      ]
     );
 
-    const insertResult = result as ResultSetHeader;
-
-    res.status(200).json({ success: true, insertedId: insertResult.insertId });
+    res.status(200).json({ success: true, titre, message:"Mission ajoutée avec succès" });
   } catch (error) {
     console.error('Erreur MySQL', error);
     res.status(500).send('Erreur MySQL');
@@ -98,6 +120,16 @@ export const getId_Mission = functions.https.onRequest(async (req, res) => {
 export const getMission = functions.https.onRequest(async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT Id_Mission, titre, description_Mission, date_debut, date_fin, statut_Mission, date_creation_mission FROM mission');
+    res.status(200).json({ mission : rows });
+  } catch (err) {
+    console.error('Erreur MySQL', err);
+    res.status(500).send('Erreur MySQL');
+  }
+});
+
+export const getArticle = functions.https.onRequest(async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT Id_article, nom_article, contenu, auteur, date_publication FROM article_veille2');
     res.status(200).json({ mission : rows });
   } catch (err) {
     console.error('Erreur MySQL', err);
