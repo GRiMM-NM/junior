@@ -15,7 +15,6 @@ import {
   View,
 } from 'react-native';
 
-
 const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 const months = [
   'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
@@ -31,18 +30,33 @@ type Events = {
   [date: string]: Event[];
 };
 
+// Voici les événements que tu veux afficher dès le début
+const initialEvents: Events = {
+  '2025-06-15': [
+    { name: 'Réunion équipe', hour: '10:00' },
+    { name: 'Déjeuner client', hour: '12:30' },
+  ],
+  '2025-06-20': [
+    { name: 'Présentation projet', hour: '14:00' },
+  ],
+  '2025-07-05': [
+    { name: 'Conférence', hour: '09:00' },
+  ],
+};
+
 export default function Evenement() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [eventName, setEventName] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [eventHour, setEventHour] = useState('');
-  const [events, setEvents] = useState<Events>({});
+  const [events, setEvents] = useState<Events>(initialEvents); // <-- ici l'initialisation
   const [currentMonthIndex, setCurrentMonthIndex] = useState<number>(new Date().getMonth());
   const [modalVisible, setModalVisible] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editName, setEditName] = useState('');
   const [editHour, setEditHour] = useState('');
   const router = useRouter();
+
   const handleAddEvent = () => {
     if (eventDate && eventName && eventHour) {
       setEvents(prev => ({
@@ -108,7 +122,7 @@ export default function Evenement() {
     for (let i = 1; i <= daysInMonth; i++) {
       const dateKey = `${year}-${(currentMonthIndex + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
       const hasEvent = events[dateKey];
- 
+
       circles.push(
         <TouchableOpacity key={i} style={styles.dayCircle} onPress={() => openEventModal(i)}>
           <Text style={styles.dayText}>{i}</Text>
@@ -132,7 +146,7 @@ export default function Evenement() {
       </>
     );
   };
- 
+
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={100}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -224,6 +238,7 @@ export default function Evenement() {
     </KeyboardAvoidingView>
   );
 }
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   scrollContainer: { paddingTop: 60, paddingHorizontal: 20, paddingBottom: 80 },
@@ -240,15 +255,15 @@ const styles = StyleSheet.create({
   redDot: { position: 'absolute', bottom: 4, width: 8, height: 8, borderRadius: 4, backgroundColor: 'red' },
   form: { backgroundColor: '#F4FBFE', borderRadius: 20, padding: 20, shadowColor: '#000', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 }, shadowRadius: 8, elevation: 4 },
   label: { color: '#075B7A', marginBottom: 6, fontWeight: '600' },
-  input: { backgroundColor: '#D4F4FB', borderRadius: 12, paddingHorizontal: 15, paddingVertical: 10, marginBottom: 10 },
+  input: { backgroundColor: '#D4F0FD', padding: 12, borderRadius: 12, marginBottom: 12, color: '#075B7A' },
   buttonsRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  addButton: { backgroundColor: '#079BCF', paddingVertical: 10, paddingHorizontal: 25, borderRadius: 50, marginTop: 5 },
-  deleteButton: { backgroundColor: '#F55' },
-  buttonText: { color: 'white', fontWeight: '600' },
-  bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 65, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#D1D9DE', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, shadowOffset: { width: 0, height: -3 } },
+  addButton: { backgroundColor: '#079BCF', paddingVertical: 12, paddingHorizontal: 24, borderRadius: 12, marginTop: 10, flex: 1, marginHorizontal: 5 },
+  deleteButton: { backgroundColor: '#FF5757' },
+  buttonText: { color: 'white', fontWeight: 'bold', textAlign: 'center' },
+  bottomBar: { flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 12, backgroundColor: '#9BE0F1', borderRadius: 20, marginTop: 10 },
   modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
-  modalContent: { backgroundColor: 'white', borderRadius: 20, padding: 20, width: '85%', alignItems: 'center' },
-  modalTitle: { fontSize: 18, fontWeight: '600', marginBottom: 10, color: '#075B7A' },
-  modalEvent: { fontSize: 16, color: '#333', marginBottom: 5 },
-  modalClose: { marginTop: 15, backgroundColor: '#079BCF', paddingVertical: 8, paddingHorizontal: 20, borderRadius: 10 },
+  modalContent: { backgroundColor: 'white', padding: 20, borderRadius: 20, width: '80%' },
+  modalTitle: { fontWeight: 'bold', fontSize: 20, marginBottom: 15, color: '#079BCF', textAlign: 'center' },
+  modalEvent: { fontSize: 16, fontWeight: '600', marginBottom: 6, color: '#075B7A' },
+  modalClose: { marginTop: 20, backgroundColor: '#079BCF', padding: 12, borderRadius: 12, alignItems: 'center' },
 });

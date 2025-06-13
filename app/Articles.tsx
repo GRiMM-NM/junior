@@ -2,6 +2,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Animated,
   FlatList,
   KeyboardAvoidingView,
@@ -23,28 +24,25 @@ import { ThemedeText } from "./../components/ThemedText";
 import { useThemeColors } from "./../hooks/useThemeColor";
 
 interface ArticleItem {
-  id: number;
+  id: string;
   title: string;
   content: string;
+  author?: string;
+  date?: string;
 }
 
 export default function Articles() {
   const colors = useThemeColors();
   const router = useRouter();
 
-  const [articles, setArticles] = useState<ArticleItem[]>([
-    { id: 1, title: "Climat et Energie", content: "Contenu détaillé sur le climat." },
-    { id: 2, title: "Intelligence Artificielle", content: "L'IA bouleverse notre société." },
-    { id: 3, title: "Espace et exploration", content: "Mars, la prochaine étape ?" },
-  ]);
-
+  const [articles, setArticles] = useState<ArticleItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedArticle, setSelectedArticle] = useState<ArticleItem | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
 
-  // Animation du bouton +
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -56,6 +54,30 @@ export default function Articles() {
     ).start();
   }, []);
 
+  // Charger les articles depuis l'API
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const response = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/getArticle");
+        const data = await response.json();
+        const formattedArticles: ArticleItem[] = data.mission.map((item: any) => ({
+          id: item.Id_article,
+          title: item.nom_article,
+          content: item.contenu,
+          author: item.auteur,
+          date: item.date_publication,
+        }));
+        setArticles(formattedArticles);
+      } catch (error) {
+        console.error("Erreur lors du chargement des articles :", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
+
   const filteredArticles = articles.filter((article) =>
     article.title.toLowerCase().includes(search.toLowerCase())
   );
@@ -63,7 +85,7 @@ export default function Articles() {
   const addArticle = () => {
     if (newTitle.trim() && newContent.trim()) {
       const newArticle: ArticleItem = {
-        id: articles.length + 1,
+        id: (articles.length + 1).toString(),
         title: newTitle,
         content: newContent,
       };
@@ -76,9 +98,8 @@ export default function Articles() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.tint }]}>
-      {/* Titre centré */}
       <View style={styles.header}>
-        <ThemedeText variant="subtitle2" style={styles.title} color={'grayWhite'}>
+        <ThemedeText variant="subtitle2" style={styles.title} color={"grayWhite"}>
           Articles
         </ThemedeText>
       </View>
@@ -88,10 +109,18 @@ export default function Articles() {
       </Row>
 
       <Card style={styles.body}>
-        {selectedArticle ? (
+        {loading ? (
+          <ActivityIndicator size="large" color="#15ACCD" style={{ marginTop: 20 }} />
+        ) : selectedArticle ? (
           <View>
             <Text style={styles.articleTitle}>{selectedArticle.title}</Text>
             <Text style={styles.articleContent}>{selectedArticle.content}</Text>
+            {selectedArticle.author && (
+              <Text style={{ fontStyle: "italic", marginTop: 8 }}>
+                Par {selectedArticle.author}, publié le{" "}
+                {new Date(selectedArticle.date || "").toLocaleDateString()}
+              </Text>
+            )}
             <TouchableOpacity onPress={() => setSelectedArticle(null)}>
               <Text style={styles.back}>← Retour à la liste</Text>
             </TouchableOpacity>
@@ -99,7 +128,7 @@ export default function Articles() {
         ) : (
           <FlatList
             data={filteredArticles}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <Pressable onPress={() => setSelectedArticle(item)} style={styles.articleItem}>
                 <Text style={styles.articleTitle}>{item.title}</Text>
@@ -109,14 +138,12 @@ export default function Articles() {
         )}
       </Card>
 
-      {/* Bouton flottant + animé */}
       <Animated.View style={[styles.floatingButton, { transform: [{ scale: scaleAnim }] }]}>
         <TouchableOpacity onPress={() => setModalVisible(true)}>
           <Text style={styles.addButtonText}>+</Text>
         </TouchableOpacity>
       </Animated.View>
 
-      {/* Modal pour ajouter un article */}
       <Modal visible={modalVisible} transparent animationType="slide">
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -151,7 +178,6 @@ export default function Articles() {
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* Barre de menu */}
       <View style={styles.bottomBar}>
         <TouchableOpacity onPress={() => router.push("/Profile")}>
           <FontAwesome name="user" size={24} color="#075B7A" />
@@ -183,7 +209,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 24,
     textAlign: "center",
-    paddingTop : Platform.OS === "ios" ? 40:20,
+    paddingTop: Platform.OS === "ios" ? 40 : 20,
   },
   body: {
     flex: 1,

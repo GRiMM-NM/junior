@@ -130,10 +130,19 @@ export const getMission = functions.https.onRequest(async (req, res) => {
 export const getArticle = functions.https.onRequest(async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT Id_article, nom_article, contenu, auteur, date_publication FROM article_veille2');
-    res.status(200).json({ mission : rows });
+    res.status(200).json({ article : rows });
   } catch (err) {
     console.error('Erreur MySQL', err);
     res.status(500).send('Erreur MySQL');
   }
 });
 
+export const getEvenement = functions.https.onRequest(async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT Id_evenement, nom_evenement, description_evenement, date_evenement, lieu, Type_evenement FROM Evenement2');
+    res.status(200).json({ evenement : rows });
+  } catch (err) {
+    console.error('Erreur MySQL', err);
+    res.status(500).send('Erreur MySQL');
+  }
+});
