@@ -60,7 +60,8 @@ export default function Articles() {
       try {
         const response = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/getArticle");
         const data = await response.json();
-        const formattedArticles: ArticleItem[] = data.mission.map((item: any) => ({
+        //console.log("Données reçues :", data);
+        const formattedArticles: ArticleItem[] = data.article.map((item: any) => ({
           id: item.Id_article,
           title: item.nom_article,
           content: item.contenu,
