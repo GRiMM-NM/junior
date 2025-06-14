@@ -207,11 +207,11 @@ export default function MissionDetail() {
               🎉 Inscription confirmée !
             </ThemedeText>
             <Explosion
-              count={100}
+              count={200}
               origin={{ x: width / 2, y: 0 }}
               autoStart={false} // On démarre manuellement dans useEffect
               fadeOut={true}
-              fallSpeed={4000}
+              fallSpeed={750}
               ref={confettiRef}
             />
           </Animated.View>
