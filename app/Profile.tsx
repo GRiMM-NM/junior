@@ -229,6 +229,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around', 
     paddingVertical: 12, 
     backgroundColor: '#9BE0F1', 
-    borderRadius: 20, 
+    borderRadius: 20,
+    bottom: 30, 
     marginTop: 10 },
 });

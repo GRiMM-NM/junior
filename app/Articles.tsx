@@ -42,6 +42,7 @@ export default function Articles() {
   const [modalVisible, setModalVisible] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
+  const [newAuthor, setNewAuthor] = useState("");
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -54,13 +55,11 @@ export default function Articles() {
     ).start();
   }, []);
 
-  // Charger les articles depuis l'API
   useEffect(() => {
     const fetchArticles = async () => {
       try {
         const response = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/getArticle");
         const data = await response.json();
-        //console.log("Données reçues :", data);
         const formattedArticles: ArticleItem[] = data.article.map((item: any) => ({
           id: item.Id_article,
           title: item.nom_article,
@@ -83,17 +82,46 @@ export default function Articles() {
     article.title.toLowerCase().includes(search.toLowerCase())
   );
 
-  const addArticle = () => {
-    if (newTitle.trim() && newContent.trim()) {
-      const newArticle: ArticleItem = {
-        id: (articles.length + 1).toString(),
-        title: newTitle,
-        content: newContent,
-      };
-      setArticles([newArticle, ...articles]);
-      setNewTitle("");
-      setNewContent("");
-      setModalVisible(false);
+  const addArticle = async () => {
+    if (newTitle.trim() && newContent.trim() && newAuthor.trim()) {
+      try {
+        const response = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/addArticle", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            nom_article: newTitle,
+            contenu: newContent,
+            auteur: newAuthor,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Échec de l’ajout de l’article");
+        }
+
+        const data = await response.json();
+        console.log("Article ajouté :", data);
+
+        setArticles((prev) => [
+          {
+            id: "temp-" + Date.now(),
+            title: newTitle,
+            content: newContent,
+            author: newAuthor,
+            date: new Date().toISOString(),
+          },
+          ...prev,
+        ]);
+
+        setNewTitle("");
+        setNewContent("");
+        setNewAuthor("");
+        setModalVisible(false);
+      } catch (error) {
+        console.error("Erreur lors de l’ajout de l’article :", error);
+      }
     }
   };
 
@@ -156,15 +184,24 @@ export default function Articles() {
               <TextInput
                 style={styles.input}
                 placeholder="Titre"
+                placeholderTextColor="#075B7A99"
                 value={newTitle}
                 onChangeText={setNewTitle}
               />
               <TextInput
                 style={[styles.input, { height: 100, textAlignVertical: "top" }]}
                 placeholder="Contenu"
+                placeholderTextColor="#075B7A99"
                 value={newContent}
                 onChangeText={setNewContent}
                 multiline
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Auteur"
+                placeholderTextColor="#075B7A99"
+                value={newAuthor}
+                onChangeText={setNewAuthor}
               />
               <View style={styles.modalButtons}>
                 <TouchableOpacity onPress={addArticle} style={styles.modalButtonConfirm}>
@@ -236,15 +273,14 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
   },
-  bottomBar: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-around', 
-    paddingVertical: 12, 
-    backgroundColor: '#9BE0F1', 
-    borderRadius: 20, 
-    marginTop: 10 },
-
-
+  bottomBar: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    paddingVertical: 12,
+    backgroundColor: "#9BE0F1",
+    borderRadius: 20,
+    marginTop: 10,
+  },
   floatingButton: {
     position: "absolute",
     bottom: 115,

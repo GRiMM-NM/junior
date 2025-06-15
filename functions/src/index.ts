@@ -71,6 +71,106 @@ export const addMission = functions.https.onRequest(async (req, res) => {
   }
 });
 
+// 📥 Ajouter une mission
+export const addArticle = functions.https.onRequest(async (req, res) => {
+  if (req.method !== 'POST') {
+    res.status(405).send('Méthode non autorisée');
+    return;
+  }
+
+  const { 
+    nom_article,
+    contenu,
+    auteur,
+   } = req.body;
+
+  if (!nom_article || !contenu || !auteur) {
+    res.status(400).send('Champs manquants');
+    return;
+  }
+      const [rows] = await pool.query(
+      'SELECT Id_article FROM Article_veille2 ORDER BY Id_article DESC LIMIT 1'
+    ) as [any[], any];
+
+    let newId = 'A0001';
+    if (rows.length > 0) {
+      const lastId = rows[0].Id_article;
+      const lastNumber = parseInt(lastId.replace('A', ''), 10);
+      const nextNumber = lastNumber + 1;
+      newId = `A${nextNumber.toString().padStart(4, '0')}`;
+    }
+
+  try {
+    await pool.query(
+      'INSERT INTO Article_veille2 (Id_article, nom_article, contenu, auteur, date_publication) VALUES (?, ?, ?, ?, ?)',
+      [
+        newId,
+        nom_article.trim(), 
+        contenu.trim(),
+        auteur.trim(),
+        new Date(),
+      ]
+    );
+
+    res.status(200).json({ success: true, nom_article, message:"Article ajoutée avec succès" });
+  } catch (error) {
+    console.error('Erreur MySQL', error);
+    res.status(500).send('Erreur MySQL');
+  }
+});
+
+//ajoute des evenements
+
+export const addEvenement = functions.https.onRequest(async (req, res) => {
+  if (req.method !== 'POST') {
+    res.status(405).send('Méthode non autorisée');
+    return;
+  }
+
+  const { 
+    nom_evenement,
+    description_evenement,
+    date_evenement,
+    lieu,
+    Type_evenement,
+   } = req.body;
+
+  if (!nom_evenement || !description_evenement || !date_evenement ||! lieu ||! Type_evenement) {
+    res.status(400).send('Champs manquants');
+    return;
+  }
+      const [rows] = await pool.query(
+      'SELECT Id_evenement FROM Evenement2 ORDER BY Id_evenement DESC LIMIT 1'
+    ) as [any[], any];
+
+    let newId = 'E0001';
+    if (rows.length > 0) {
+      const lastId = rows[0].Id_evenement;
+      const lastNumber = parseInt(lastId.replace('E', ''), 10);
+      const nextNumber = lastNumber + 1;
+      newId = `E${nextNumber.toString().padStart(4, '0')}`;
+    }
+
+  try {
+    await pool.query(
+      'INSERT INTO Evenement2 (Id_evenement, nom_evenement, description_evenement, date_evenement, lieu, Type_evenement) VALUES (?, ?, ?, ?, ?, ?)',
+      [
+        newId,
+        nom_evenement.trim(), 
+        description_evenement.trim(),
+        date_evenement.trim(),
+        lieu.trim(),
+        Type_evenement.trim(),
+      ]
+    );
+
+    res.status(200).json({ success: true, nom_evenement, message:"Evenement ajoutée avec succès" });
+  } catch (error) {
+    console.error('Erreur MySQL', error);
+    res.status(500).send('Erreur MySQL');
+  }
+});
+
 // 📤 Récupérer les titres de missions
 export const getTitle_Mission = functions.https.onRequest(async (req, res) => {
   try {

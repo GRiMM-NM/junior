@@ -1,8 +1,9 @@
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  Keyboard,
+  ActivityIndicator,
+  Animated,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -15,255 +16,253 @@ import {
   View,
 } from 'react-native';
 
-const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-const months = [
-  'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
-];
+const months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 
 type Event = {
-  name: string;
-  hour: string;
+  id: string;
+  nom: string;
+  description: string;
+  date: string;
+  lieu: string;
+  type: string;
 };
 
-type Events = {
-  [date: string]: Event[];
-};
-
-// Voici les événements que tu veux afficher dès le début
-const initialEvents: Events = {
-  '2025-06-15': [
-    { name: 'Réunion équipe', hour: '10:00' },
-    { name: 'Déjeuner client', hour: '12:30' },
-  ],
-  '2025-06-20': [
-    { name: 'Présentation projet', hour: '14:00' },
-  ],
-  '2025-07-05': [
-    { name: 'Conférence', hour: '09:00' },
-  ],
-};
+type EventsMap = { [date: string]: Event[] };
 
 export default function Evenement() {
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [eventName, setEventName] = useState('');
-  const [eventDate, setEventDate] = useState('');
-  const [eventHour, setEventHour] = useState('');
-  const [events, setEvents] = useState<Events>(initialEvents); // <-- ici l'initialisation
-  const [currentMonthIndex, setCurrentMonthIndex] = useState<number>(new Date().getMonth());
-  const [modalVisible, setModalVisible] = useState(false);
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [editName, setEditName] = useState('');
-  const [editHour, setEditHour] = useState('');
   const router = useRouter();
+  const [events, setEvents] = useState<EventsMap>({});
+  const [loading, setLoading] = useState(true);
+  const [currentMonthIndex, setCurrentMonthIndex] = useState(new Date().getMonth());
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
-  const handleAddEvent = () => {
-    if (eventDate && eventName && eventHour) {
-      setEvents(prev => ({
-        ...prev,
-        [eventDate]: [...(prev[eventDate] || []), { name: eventName, hour: eventHour }],
-      }));
-      setEventName('');
-      setEventDate('');
-      setEventHour('');
-    }
-  };
+  const [nom, setNom] = useState('');
+  const [description, setDescription] = useState('');
+  const [date, setDate] = useState('');
+  const [lieu, setLieu] = useState('');
+  const [type, setType] = useState('');
 
-  const handleDeleteEvent = () => {
-    if (eventDate && events[eventDate]) {
-      const updatedEvents = [...events[eventDate]];
-      updatedEvents.pop();
-      if (updatedEvents.length === 0) {
-        const newEvents = { ...events };
-        delete newEvents[eventDate];
-        setEvents(newEvents);
-      } else {
-        setEvents(prev => ({ ...prev, [eventDate]: updatedEvents }));
+  const bottomBarAnim = useRef(new Animated.Value(0)).current;
+  const scrollOffset = useRef(0);
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    try {
+      const res = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/getEvenement");
+      const json = await res.json();
+      const map: EventsMap = {};
+      for (const e of json.evenement) {
+        const dateKey = e.date_evenement.split('T')[0];
+        if (!map[dateKey]) map[dateKey] = [];
+        map[dateKey].push({
+          id: e.Id_evenement,
+          nom: e.nom_evenement,
+          description: e.description_evenement,
+          date: e.date_evenement,
+          lieu: e.lieu,
+          type: e.Type_evenement,
+        });
       }
-      setEventName('');
-      setEventDate('');
-      setEventHour('');
+      setEvents(map);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const openEventModal = (day: number) => {
-    const dateKey = `2025-${(currentMonthIndex + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-    if (events[dateKey]) {
-      setSelectedDate(dateKey);
+  const openModalForDate = (day: number) => {
+    const dk = `2025-${String(currentMonthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    if (events[dk]) {
+      setSelectedDate(dk);
       setModalVisible(true);
     }
   };
 
-  const handleStartEdit = (index: number) => {
-    if (!selectedDate) return;
-    const event = events[selectedDate][index];
-    setEditingIndex(index);
-    setEditName(event.name);
-    setEditHour(event.hour);
-  };
+  const handleAddEvent = async () => {
+    if (!nom || !description || !date || !lieu || !type) {
+      alert("Tous les champs sont requis !");
+      return;
+    }
 
-  const handleSaveEdit = () => {
-    if (selectedDate && editingIndex !== null) {
-      const updatedEvents = [...events[selectedDate]];
-      updatedEvents[editingIndex] = { name: editName, hour: editHour };
-      setEvents(prev => ({ ...prev, [selectedDate]: updatedEvents }));
-      setEditingIndex(null);
-      setEditName('');
-      setEditHour('');
+    try {
+      const res = await fetch('http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/addEvenement', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nom_evenement: nom,
+          description_evenement: description,
+          date_evenement: date,
+          lieu: lieu,
+          Type_evenement: type,
+        }),
+      });
+
+      const result = await res.json();
+      if (result.success || result.message) {
+        alert("Événement ajouté !");
+        setNom('');
+        setDescription('');
+        setDate('');
+        setLieu('');
+        setType('');
+        setLoading(true);
+        await fetchEvents();
+      } else {
+        alert("Erreur lors de l’ajout.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Erreur réseau.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const renderCalendar = () => {
     const year = 2025;
-    const daysInMonth = new Date(year, currentMonthIndex + 1, 0).getDate();
-    const month = months[currentMonthIndex];
-    const circles = [];
-
-    for (let i = 1; i <= daysInMonth; i++) {
-      const dateKey = `${year}-${(currentMonthIndex + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
-      const hasEvent = events[dateKey];
-
-      circles.push(
-        <TouchableOpacity key={i} style={styles.dayCircle} onPress={() => openEventModal(i)}>
-          <Text style={styles.dayText}>{i}</Text>
-          {hasEvent && <View style={styles.redDot} />}
-        </TouchableOpacity>
-      );
-    }
-
+    const dim = new Date(year, currentMonthIndex + 1, 0).getDate();
+    const arr = Array.from({ length: dim }, (_, i) => i + 1);
     return (
       <>
-        <View style={styles.monthNavigation}>
+        <View style={styles.monthNav}>
           <TouchableOpacity onPress={() => setCurrentMonthIndex((currentMonthIndex + 11) % 12)}>
             <Text style={styles.navButton}>←</Text>
           </TouchableOpacity>
-          <Text style={styles.monthTitle}>{month} 2025</Text>
+          <Text style={styles.monthTitle}>{months[currentMonthIndex]} {year}</Text>
           <TouchableOpacity onPress={() => setCurrentMonthIndex((currentMonthIndex + 1) % 12)}>
             <Text style={styles.navButton}>→</Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.calendarGrid}>{circles}</View>
+        <View style={styles.calendarGrid}>
+          {arr.map(day => {
+            const key = `${year}-${String(currentMonthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const has = events[key];
+            return (
+              <TouchableOpacity key={day} style={styles.dayCircle} onPress={() => openModalForDate(day)}>
+                <Text style={styles.dayText}>{day}</Text>
+                {has && <View style={styles.redDot} />}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </>
     );
   };
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={100}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <TouchableWithoutFeedback>
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          scrollEventThrottle={16}
+        >
           <Text style={styles.title}>Événements</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.daysRow}>
-            {days.map((day, index) => (
-              <View key={index} style={styles.dayButton}>
-                <Text style={styles.dayText}>{day}</Text>
-              </View>
-            ))}
-          </ScrollView>
-          <View style={styles.calendar}>{renderCalendar()}</View>
-          <View style={styles.form}>
-            <Text style={styles.label}>Nom de l’événement</Text>
-            <TextInput style={styles.input} value={eventName} onChangeText={setEventName} placeholder="Votre événement" />
-            <Text style={styles.label}>Date de l’événement (AAAA-MM-JJ)</Text>
-            <TextInput style={styles.input} value={eventDate} onChangeText={setEventDate} placeholder="2025-06-15" />
-            <Text style={styles.label}>Heure de l’événement</Text>
-            <TextInput style={styles.input} value={eventHour} onChangeText={setEventHour} placeholder="14:00" />
-            <View style={styles.buttonsRow}>
-              <TouchableOpacity style={styles.addButton} onPress={handleAddEvent}>
-                <Text style={styles.buttonText}>Ajouter</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.addButton, styles.deleteButton]} onPress={handleDeleteEvent}>
-                <Text style={styles.buttonText}>Supprimer</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={styles.bottomBar}>
-            <TouchableOpacity onPress={() => router.push('/Profile')}>
-              <FontAwesome name="user" size={24} color="#075B7A" />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/Accueil')}>
-              <FontAwesome name="home" size={24} color="#075B7A" />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/Articles')}>
-              <FontAwesome name="book" size={24} color="#075B7A" />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/Evenement')}>
-              <FontAwesome name="calendar" size={24} color="#075B7A" />
+          {loading ? <ActivityIndicator size="large" color="#079BCF" /> : renderCalendar()}
+
+          <View style={{ marginTop: 30, backgroundColor: '#f2f2f2', padding: 15, borderRadius: 12 }}>
+            <Text style={{ fontSize: 18, fontWeight: '600', color: '#075B7A', marginBottom: 10 }}>Ajouter un événement</Text>
+            <Text>Nom</Text>
+            <TextInput value={nom} onChangeText={setNom} style={styles.input} />
+            <Text>Description</Text>
+            <TextInput value={description} onChangeText={setDescription} style={styles.input} multiline />
+            <Text>Date (YYYY-MM-DD)</Text>
+            <TextInput value={date} onChangeText={setDate} style={styles.input} />
+            <Text>Lieu</Text>
+            <TextInput value={lieu} onChangeText={setLieu} style={styles.input} />
+            <Text>Type</Text>
+            <TextInput value={type} onChangeText={setType} style={styles.input} />
+            <TouchableOpacity style={styles.submitBtn} onPress={handleAddEvent}>
+              <Text style={styles.btnText}>Ajouter</Text>
             </TouchableOpacity>
           </View>
+
           <Modal visible={modalVisible} transparent animationType="slide">
-            <View style={styles.modalContainer}>
+            <View style={styles.modalBg}>
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>Événements du {selectedDate}</Text>
-                {selectedDate && events[selectedDate]?.map((event, idx) => (
-                  <View key={idx} style={{ marginBottom: 10 }}>
-                    {editingIndex === idx ? (
-                      <>
-                        <TextInput
-                          style={styles.input}
-                          value={editHour}
-                          onChangeText={setEditHour}
-                          placeholder="Heure"
-                        />
-                        <TextInput
-                          style={styles.input}
-                          value={editName}
-                          onChangeText={setEditName}
-                          placeholder="Nom"
-                        />
-                        <TouchableOpacity style={styles.addButton} onPress={handleSaveEdit}>
-                          <Text style={styles.buttonText}>Enregistrer</Text>
-                        </TouchableOpacity>
-                      </>
-                    ) : (
-                      <>
-                        <Text style={styles.modalEvent}>{event.hour} - {event.name}</Text>
-                        <TouchableOpacity onPress={() => handleStartEdit(idx)}>
-                          <Text style={{ color: '#079BCF', fontWeight: '600' }}>✏️ Modifier</Text>
-                        </TouchableOpacity>
-                      </>
-                    )}
+                {selectedDate && events[selectedDate]?.map((ev, idx) => (
+                  <View key={idx} style={{ marginBottom: 16 }}>
+                    <Text style={styles.modalEvent}><Text style={styles.bold}>Nom :</Text> {ev.nom}</Text>
+                    <Text style={styles.modalEvent}><Text style={styles.bold}>Description :</Text> {ev.description}</Text>
+                    <Text style={styles.modalEvent}><Text style={styles.bold}>Lieu :</Text> {ev.lieu}</Text>
+                    <Text style={styles.modalEvent}><Text style={styles.bold}>Type :</Text> {ev.type}</Text>
                   </View>
                 ))}
-                <TouchableOpacity onPress={() => {
+                <TouchableOpacity style={styles.closeBtn} onPress={() => {
                   setModalVisible(false);
-                  setEditingIndex(null);
-                }} style={styles.modalClose}>
-                  <Text style={{ color: '#fff', fontWeight: 'bold' }}>Fermer</Text>
+                  setSelectedDate(null);
+                }}>
+                  <Text style={styles.btnText}>Fermer</Text>
                 </TouchableOpacity>
               </View>
             </View>
           </Modal>
         </ScrollView>
       </TouchableWithoutFeedback>
+
+      <Animated.View style={[styles.bottomBar, { transform: [{ translateY: bottomBarAnim }] }]}>
+        <TouchableOpacity onPress={() => router.push('/Profile')}><FontAwesome name="user" size={24} color="#075B7A" /></TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('/Accueil')}><FontAwesome name="home" size={24} color="#075B7A" /></TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('/Articles')}><FontAwesome name="book" size={24} color="#075B7A" /></TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('/Evenement')}><FontAwesome name="calendar" size={24} color="#075B7A" /></TouchableOpacity>
+      </Animated.View>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  scrollContainer: { paddingTop: 60, paddingHorizontal: 20, paddingBottom: 80 },
-  title: { fontSize: 26, fontWeight: '600', color: '#079BCF', textAlign: 'center', marginBottom: 20 },
-  daysRow: { marginBottom: 10 },
-  dayButton: { backgroundColor: '#DAF4F8', padding: 10, borderRadius: 12, marginRight: 10 },
-  dayText: { color: '#079BCF', fontSize: 14, textAlign: 'center' },
-  monthNavigation: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  monthTitle: { fontSize: 18, fontWeight: '600', color: '#075B7A', textAlign: 'center' },
-  navButton: { fontSize: 24, color: '#075B7A', paddingHorizontal: 10 },
-  calendar: { backgroundColor: '#9BE0F1', borderRadius: 16, padding: 20, marginBottom: 20 },
-  calendarGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  dayCircle: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#C9EDF6', justifyContent: 'center', alignItems: 'center', marginVertical: 6, position: 'relative' },
-  redDot: { position: 'absolute', bottom: 4, width: 8, height: 8, borderRadius: 4, backgroundColor: 'red' },
-  form: { backgroundColor: '#F4FBFE', borderRadius: 20, padding: 20, shadowColor: '#000', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 }, shadowRadius: 8, elevation: 4 },
-  label: { color: '#075B7A', marginBottom: 6, fontWeight: '600' },
-  input: { backgroundColor: '#D4F0FD', padding: 12, borderRadius: 12, marginBottom: 12, color: '#075B7A' },
-  buttonsRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  addButton: { backgroundColor: '#079BCF', paddingVertical: 12, paddingHorizontal: 24, borderRadius: 12, marginTop: 10, flex: 1, marginHorizontal: 5 },
-  deleteButton: { backgroundColor: '#FF5757' },
-  buttonText: { color: 'white', fontWeight: 'bold', textAlign: 'center' },
-  bottomBar: { flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 12, backgroundColor: '#9BE0F1', borderRadius: 20, marginTop: 10 },
-  modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
-  modalContent: { backgroundColor: 'white', padding: 20, borderRadius: 20, width: '80%' },
-  modalTitle: { fontWeight: 'bold', fontSize: 20, marginBottom: 15, color: '#079BCF', textAlign: 'center' },
-  modalEvent: { fontSize: 16, fontWeight: '600', marginBottom: 6, color: '#075B7A' },
-  modalClose: { marginTop: 20, backgroundColor: '#079BCF', padding: 12, borderRadius: 12, alignItems: 'center' },
+  scroll: { paddingTop: 60, paddingHorizontal: 20, paddingBottom: 120 },
+  title: { fontSize: 22, fontWeight: '600', color: '#079BCF', marginBottom: 12 },
+  input: {
+    backgroundColor: '#fff',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    marginBottom: 10,
+  },
+  submitBtn: {
+    backgroundColor: '#079BCF',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  btnText: { color: '#fff', fontWeight: 'bold' },
+  monthNav: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 10 },
+  navButton: { fontSize: 18, fontWeight: 'bold', color: '#079BCF' },
+  monthTitle: { fontSize: 18, fontWeight: 'bold' },
+  calendarGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' },
+  dayCircle: { width: 40, height: 40, margin: 5, alignItems: 'center', justifyContent: 'center', borderRadius: 20, backgroundColor: '#e6f7ff' },
+  dayText: { fontSize: 16 },
+  redDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: 'red', marginTop: 2 },
+  modalBg: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
+  modalContent: { backgroundColor: 'white', padding: 20, borderRadius: 12, width: '80%' },
+  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
+  modalEvent: { marginBottom: 5 },
+  bold: { fontWeight: 'bold' },
+  closeBtn: { backgroundColor: '#079BCF', padding: 10, borderRadius: 8, alignItems: 'center', marginTop: 10 },
+  bottomBar: {
+    position: 'absolute',
+    bottom: 30,
+    left: 20,
+    right: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 12,
+    backgroundColor: '#9BE0F1',
+    borderRadius: 20,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+  },
 });
