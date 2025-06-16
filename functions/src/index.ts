@@ -246,3 +246,14 @@ export const getEvenement = functions.https.onRequest(async (req, res) => {
     res.status(500).send('Erreur MySQL');
   }
 });
+
+
+export const getHistorique = functions.https.onRequest(async(req, res)=>{
+  try{
+    const [rows]=await pool.query('SELECT Id_historique, type_Historique, nom, date_action FROM historique3');
+    res.status(200).json({historique : rows});
+  } catch (err){
+    console.error('Erreur MySQL', err);
+    res.status(500).send('Erreur MySQL');
+  }
+})

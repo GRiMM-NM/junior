@@ -1,7 +1,9 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
+  Animated,
   FlatList,
   Image,
   KeyboardAvoidingView,
@@ -42,6 +44,16 @@ export default function Accueil() {
   const [dateDebut, setDateDebut] = useState("");
   const [dateFin, setDateFin] = useState("");
   const [statutMission, setStatutMission] = useState("");
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+useEffect(() => {
+  Animated.loop(
+    Animated.sequence([
+      Animated.timing(scaleAnim, { toValue: 1.1, duration: 800, useNativeDriver: true }),
+      Animated.timing(scaleAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
+    ])
+  ).start();
+}, [])
 
   useEffect(() => {
 const fetchMissions = async () => {
@@ -141,9 +153,11 @@ const addMission = async () => {
       </Row>
 
       <Card style={styles.body}>
-        {loading ? (
-          <Text>Chargement des missions...</Text>
-        ) : selectedMission ? (
+          {loading ? (
+            <Animated.View style={{ transform: [{ scale: scaleAnim }], marginTop: 20 }}>
+              <ActivityIndicator size="large" color="#15ACCD" />
+            </Animated.View>
+          ) : selectedMission ? (
           <View>
             <Text style={styles.missionTitle}>{selectedMission.title}</Text>
             <Text style={styles.missionContent}>{selectedMission.description}</Text>

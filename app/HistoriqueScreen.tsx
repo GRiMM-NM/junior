@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { JSX } from "react";
+import React, { JSX, useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
+  Animated,
   ScrollView,
   StyleSheet,
   Text,
@@ -9,13 +11,43 @@ import {
   View,
 } from "react-native";
 
-interface MissionCardProps {
-  titre: string;
-  description: string;
+interface HistoriqueItem {
+  Id_historique: string;
+  type_Historique: string;
+  nom: string;
+  date_action: string;
 }
 
 export default function MissionsRecemment(): JSX.Element {
   const router = useRouter();
+  const [historique, setHistorique] = useState<HistoriqueItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(scaleAnim, { toValue: 1.1, duration: 800, useNativeDriver: true }),
+        Animated.timing(scaleAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
+      ])
+    ).start();
+  }, []);
+
+  useEffect(() => {
+    const fetchHistorique = async () => {
+      try {
+        const response = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/getHistorique");
+        const data = await response.json();
+        setHistorique(data.historique);
+      } catch (error) {
+        console.error("Erreur lors de la récupération de l'historique :", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHistorique();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -24,16 +56,31 @@ export default function MissionsRecemment(): JSX.Element {
         <Ionicons name="chevron-back" size={30} color="#0D99B2" />
       </TouchableOpacity>
 
-      <Text style={styles.title}>Missions récemment consultées</Text>
+      <Text style={styles.title}>Historique récent</Text>
 
-      {/* Liste des missions */}
-      <ScrollView>
-        <MissionCard titre="Mission 1" description="Accompagner un événement local" />
-        <MissionCard titre="Mission 2" description="Distribution de repas solidaires" />
-        <MissionCard titre="Mission 3" description="Aide à l'inclusion numérique" />
-      </ScrollView>
+      {/* Chargement ou contenu */}
+      {loading ? (
+        <Animated.View style={{ transform: [{ scale: scaleAnim }], marginTop: 40 }}>
+          <ActivityIndicator size="large" color="#15ACCD" />
+        </Animated.View>
+      ) : (
+        <ScrollView>
+          {historique.map((item) => (
+            <MissionCard
+              key={item.Id_historique}
+              titre={item.nom}
+              description={`${item.type_Historique} - ${new Date(item.date_action).toLocaleDateString()}`}
+            />
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
+}
+
+interface MissionCardProps {
+  titre: string;
+  description: string;
 }
 
 function MissionCard({ titre, description }: MissionCardProps): JSX.Element {
