@@ -1,7 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { JSX, useContext } from 'react';
+import { updatePassword } from 'firebase/auth';
+import React, { JSX, useContext, useState } from 'react';
 import {
+  Alert,
   Image,
   StyleSheet,
   Text,
@@ -9,11 +11,30 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { auth } from '../firebaseConfig';
 import { UserContext } from './../UserContext';
 
 export default function ModifierProfilScreen(): JSX.Element {
   const { imageUri } = useContext(UserContext);
   const router = useRouter();
+
+  const [newPassword, setNewPassword] = useState('');
+
+  const handlePasswordChange = async () => {
+    const user = auth.currentUser;
+
+    if (user && newPassword.trim().length >= 6) {
+      try {
+        await updatePassword(user, newPassword);
+        Alert.alert('Succès', 'Mot de passe mis à jour avec succès.');
+        setNewPassword('');
+      } catch (error: any) {
+        Alert.alert('Erreur', error.message);
+      }
+    } else {
+      Alert.alert('Erreur', 'Veuillez saisir un mot de passe valide (au moins 6 caractères).');
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -39,6 +60,21 @@ export default function ModifierProfilScreen(): JSX.Element {
 
       <Text style={styles.label}>Téléphone (pro)</Text>
       <TextInput style={styles.input} placeholder="Autre numéro" keyboardType="phone-pad" placeholderTextColor="#075B7A99" />
+
+      {/* Nouveau mot de passe */}
+      <Text style={styles.label}>Nouveau mot de passe</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="********"
+        secureTextEntry
+        value={newPassword}
+        onChangeText={setNewPassword}
+        placeholderTextColor="#075B7A99"
+      />
+
+      <TouchableOpacity style={styles.button} onPress={handlePasswordChange}>
+        <Text style={styles.buttonText}>Changer le mot de passe</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -86,5 +122,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
+  },
+  button: {
+    backgroundColor: '#0D99B2',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 16,
   },
 });

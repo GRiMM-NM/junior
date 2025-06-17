@@ -165,6 +165,8 @@ export default function Evenement() {
     );
   };
 
+  
+
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <TouchableWithoutFeedback>
@@ -175,6 +177,43 @@ export default function Evenement() {
           <Text style={styles.title}>Événements</Text>
           {loading ? <ActivityIndicator size="large" color="#079BCF" /> : renderCalendar()}
 
+          <View style={{ marginTop: 30 }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Événements ce mois-ci</Text>
+            {Object.keys(events).filter(date => new Date(date).getMonth() === currentMonthIndex)
+              .flatMap(date => events[date])
+              .map((ev, index) => (
+                <View key={index} style={styles.eventCard}>
+                  <Text style={styles.eventTitle}>{ev.nom}</Text>
+                  <Text style={styles.eventDescription}>{ev.description}</Text>
+                  <TouchableOpacity
+                    style={styles.signupButton}
+                    onPress={() => alert(`Inscrit à l'événement : ${ev.nom}`)}
+                  >
+                    <Text style={styles.signupText}>S inscrire</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+          </View>
+
+          <Modal visible={modalVisible} transparent animationType="slide">
+            <View style={styles.modalBg}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Événements du {selectedDate}</Text>
+                {selectedDate && events[selectedDate]?.map((ev, idx) => (
+                  <View key={idx} style={{ marginBottom: 16 }}>
+                    <Text style={styles.modalEvent}><Text style={styles.bold}>Nom :</Text> {ev.nom}</Text>
+                    <Text style={styles.modalEvent}><Text style={styles.bold}>Description :</Text> {ev.description}</Text>
+                    <Text style={styles.modalEvent}><Text style={styles.bold}>Lieu :</Text> {ev.lieu}</Text>
+                    <Text style={styles.modalEvent}><Text style={styles.bold}>Type :</Text> {ev.type}</Text>
+                  </View>
+                ))}
+                <TouchableOpacity style={styles.closeBtn} onPress={() => { setModalVisible(false); setSelectedDate(null); }}>
+                  <Text style={styles.btnText}>Fermer</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+          
 
           {isAdmin && (
             <View style={{ marginTop: 30, backgroundColor: '#f2f2f2', padding: 15, borderRadius: 12 }}>
@@ -279,4 +318,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 2,
   },
+  eventCard: { backgroundColor: '#E0F7FA', borderRadius: 12, padding: 15, marginBottom: 15 },
+  eventTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 6, color: '#075B7A' },
+  eventDescription: { fontSize: 14, marginBottom: 10, color: '#333' },
+  signupButton: { backgroundColor: '#079BCF', paddingVertical: 8, borderRadius: 6, alignItems: 'center' },
+  signupText: { color: 'white', fontWeight: '600' },
 });
