@@ -1,6 +1,7 @@
 // en haut des imports
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import { signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from 'react';
 import {
   Alert,
@@ -15,17 +16,29 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { auth } from "../firebaseConfig";
 import { useThemeColors } from './../hooks/useThemeColor';
 
 export default function HomeScreen() {
   const colors = useThemeColors();
   const router = useRouter();
-  const [texte, setTexte] = useState('');
-  const [texte1, setTexte1] = useState('');
+
+  const [email, setemail] = useState('');
+  const [mdp, setmdp] = useState('');
+  const [loading, setLoading] = useState(false);
+
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
 
-  const handleLogin = async () => {
+const handleLogin = async () => {
+  setLoading(true);
+  try {
+    // Connexion avec Firebase Auth
+    const userCredential = await signInWithEmailAndPassword(auth, email, mdp);
+    const token = await userCredential.user.getIdToken();
+    console.log("JWT:", token);
+
+    // Gestion admin (local)
     if (isAdminMode) {
       if (adminPassword !== '1234') {
         Alert.alert("Erreur", "Mot de passe administrateur incorrect");
@@ -37,7 +50,13 @@ export default function HomeScreen() {
     }
 
     router.push('/Accueil');
+  } catch (error: any) {
+    Alert.alert("Erreur de connexion", error.message);
+  } finally {
+    setLoading(false);
   }
+};
+
 
   return (
     <SafeAreaView style={[{ flex: 1 }, { backgroundColor: colors.tint }]}>
@@ -62,8 +81,8 @@ export default function HomeScreen() {
             <TextInput
               style={styles.card}
               placeholder="exemple@gmail.com"
-              value={texte}
-              onChangeText={setTexte}
+              value={email}
+              onChangeText={setemail}
               placeholderTextColor="#ffffffaa"
             />
 
@@ -71,8 +90,8 @@ export default function HomeScreen() {
             <TextInput
               style={styles.card}
               placeholder="********"
-              value={texte1}
-              onChangeText={setTexte1}
+              value={mdp}
+              onChangeText={setmdp}
               secureTextEntry
               placeholderTextColor="#ffffffaa"
             />

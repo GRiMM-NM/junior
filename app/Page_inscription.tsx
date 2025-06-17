@@ -1,6 +1,8 @@
 import { useRouter } from 'expo-router';
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from 'react';
 import {
+  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -12,6 +14,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { auth } from "../firebaseConfig";
 import { Row } from './../components/Row';
 
 export default function PageInscription() {
@@ -82,7 +85,16 @@ export default function PageInscription() {
           <View style={styles.container1}>
             <TouchableOpacity
               style={styles.card1}
-              onPress={() => router.push('/Accueil')}
+              onPress={async () => {
+                  try {
+                    const userCredential = await createUserWithEmailAndPassword(auth, texte2, texte3);
+                    const token = await userCredential.user.getIdToken();
+                    console.log("JWT:", token);
+                    router.replace('/Accueil');
+                  } catch (error: any) {
+                    Alert.alert("Erreur d'inscription", error.message);
+                  }
+                }}
             >
               <Text style={{ color: '#FFFFFF', textAlign: 'center' }}>Se connecter</Text>
             </TouchableOpacity>

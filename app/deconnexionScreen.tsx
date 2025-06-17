@@ -1,22 +1,34 @@
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import { signOut } from "firebase/auth";
 import React, { JSX } from 'react';
 import {
-  BackHandler,
+  Alert,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { auth } from "../firebaseConfig";
 
 export default function DeconnexionScreen(): JSX.Element {
-  const handleExit = () => {
-    BackHandler.exitApp(); // Ferme l'app (Android uniquement)
-  };
   const router = useRouter();
 
+  const handleExit = async () => {
+    try {
+      await signOut(auth);
+      await AsyncStorage.removeItem("isAdmin"); // Supprime le rôle admin si stocké
+      Alert.alert("Déconnexion réussie");
+      router.replace("/"); // Redirige vers la page de connexion
+    } catch (error) {
+      console.error("Erreur de déconnexion :", error);
+      Alert.alert("Erreur", "Échec de la déconnexion");
+    }
+  };
+
   const handleCancel = () => {
-    router.back(); // Retour à l'écran précédent (Profil)
+    router.back(); // Retour à l'écran précédent
   };
 
   return (
@@ -73,7 +85,7 @@ function FakeOption({ label }: FakeOptionProps): JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#C5F1FF', // bleu clair
+    backgroundColor: '#C5F1FF',
     paddingTop: 60,
     paddingHorizontal: 20,
   },

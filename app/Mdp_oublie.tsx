@@ -1,6 +1,8 @@
 import { useRouter } from 'expo-router';
+import { sendPasswordResetEmail } from 'firebase/auth';
 import React, { useState } from 'react';
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
@@ -11,11 +13,24 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { auth } from '../firebaseConfig';
 
 export default function MdpOublie() {
   const router = useRouter();
-  const [texte, setTexte] = useState('');
-  const [texte1, setTexte1] = useState('');
+  const [email, setEmail] = useState('');
+
+  const handleResetPassword = async () => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      Alert.alert(
+        "Succès",
+        "Un lien de réinitialisation a été généré (voir l'UI de l'émulateur)."
+      );
+      router.push('/'); // retour à l'accueil ou login
+    } catch (error: any) {
+      Alert.alert("Erreur", error.message);
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -30,38 +45,29 @@ export default function MdpOublie() {
         >
           <Text style={styles.paragraph}>Mot de passe oublié</Text>
           <Text style={styles.paragraph2}>
-            Vous avez oublié votre mot de passe ? Pas de souci, veuillez le réinitialiser ici.
+            Veuillez entrer votre email pour réinitialiser votre mot de passe.
           </Text>
 
-          <Text style={styles.infos}>Mot de passe</Text>
+          <Text style={styles.infos}>Adresse e-mail</Text>
           <View style={styles.container1}>
             <TextInput
               style={styles.card}
-              placeholder="********"
-              value={texte}
-              onChangeText={setTexte}
-              secureTextEntry
+              placeholder="exemple@gmail.com"
+              value={email}
+              onChangeText={setEmail}
               placeholderTextColor="#ffffffaa"
-            />
-
-            <Text style={styles.infos1}>Veuillez confirmer votre mot de passe</Text>
-            <TextInput
-              style={styles.card}
-              placeholder="********"
-              value={texte1}
-              onChangeText={setTexte1}
-              secureTextEntry
-              placeholderTextColor="#ffffffaa"
+              autoCapitalize="none"
+              keyboardType="email-address"
             />
           </View>
 
           <View style={styles.container1}>
             <TouchableOpacity
               style={styles.card1}
-              onPress={() => router.push('/Accueil')}
+              onPress={handleResetPassword}
             >
               <Text style={{ color: '#FFFFFF', textAlign: 'center' }}>
-                Créer un nouveau mot de passe
+                Réinitialiser le mot de passe
               </Text>
             </TouchableOpacity>
           </View>
@@ -86,11 +92,13 @@ const styles = StyleSheet.create({
     color: '#15ACCD',
   },
   paragraph2: {
-    marginTop: -30,
+    marginTop: -10,
     textAlign: 'center',
+    paddingHorizontal: 20,
+    color: '#075B7A',
   },
   infos: {
-    marginTop: 70,
+    marginTop: 50,
     fontSize: 12,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -108,19 +116,12 @@ const styles = StyleSheet.create({
     width: 250,
     color: '#FFFFFF',
   },
-  infos1: {
-    marginTop: 20,
-    fontSize: 12,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#16698C',
-  },
   card1: {
     marginTop: 10,
     padding: 13,
     borderRadius: 10,
     backgroundColor: '#16698C',
     marginBottom: 12,
-    width: 150,
+    width: 250,
   },
 });
