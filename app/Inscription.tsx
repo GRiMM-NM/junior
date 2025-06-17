@@ -40,7 +40,7 @@ const handleLogin = async () => {
 
     // Gestion admin (local)
     if (isAdminMode) {
-      if (adminPassword !== '1234') {
+      if (adminPassword !== 'mdp_Admin') {
         Alert.alert("Erreur", "Mot de passe administrateur incorrect");
         return;
       }

@@ -1,3 +1,4 @@
+// ... imports identiques
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
@@ -31,9 +32,7 @@ type Event = {
 type EventsMap = { [date: string]: Event[] };
 
 export default function Evenement() { 
-
   const [isAdmin, setIsAdmin] = useState(false);
-
   const router = useRouter();
   const [events, setEvents] = useState<EventsMap>({});
   const [loading, setLoading] = useState(true);
@@ -50,12 +49,12 @@ export default function Evenement() {
   const bottomBarAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-  const checkAdmin = async () => {
-    const adminValue = await AsyncStorage.getItem("isAdmin");
-    setIsAdmin(adminValue === "true");
-  };
-  checkAdmin();
-}, []);
+    const checkAdmin = async () => {
+      const adminValue = await AsyncStorage.getItem("isAdmin");
+      setIsAdmin(adminValue === "true");
+    };
+    checkAdmin();
+  }, []);
 
   useEffect(() => {
     fetchEvents();
@@ -165,15 +164,10 @@ export default function Evenement() {
     );
   };
 
-  
-
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <TouchableWithoutFeedback>
-        <ScrollView
-          contentContainerStyle={styles.scroll}
-          scrollEventThrottle={16}
-        >
+        <ScrollView contentContainerStyle={styles.scroll} scrollEventThrottle={16}>
           <Text style={styles.title}>Événements</Text>
           {loading ? <ActivityIndicator size="large" color="#079BCF" /> : renderCalendar()}
 
@@ -181,39 +175,23 @@ export default function Evenement() {
             <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Événements ce mois-ci</Text>
             {Object.keys(events).filter(date => new Date(date).getMonth() === currentMonthIndex)
               .flatMap(date => events[date])
-              .map((ev, index) => (
-                <View key={index} style={styles.eventCard}>
-                  <Text style={styles.eventTitle}>{ev.nom}</Text>
-                  <Text style={styles.eventDescription}>{ev.description}</Text>
-                  <TouchableOpacity
-                    style={styles.signupButton}
-                    onPress={() => alert(`Inscrit à l'événement : ${ev.nom}`)}
-                  >
-                    <Text style={styles.signupText}>S inscrire</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-          </View>
-
-          <Modal visible={modalVisible} transparent animationType="slide">
-            <View style={styles.modalBg}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Événements du {selectedDate}</Text>
-                {selectedDate && events[selectedDate]?.map((ev, idx) => (
-                  <View key={idx} style={{ marginBottom: 16 }}>
-                    <Text style={styles.modalEvent}><Text style={styles.bold}>Nom :</Text> {ev.nom}</Text>
-                    <Text style={styles.modalEvent}><Text style={styles.bold}>Description :</Text> {ev.description}</Text>
-                    <Text style={styles.modalEvent}><Text style={styles.bold}>Lieu :</Text> {ev.lieu}</Text>
-                    <Text style={styles.modalEvent}><Text style={styles.bold}>Type :</Text> {ev.type}</Text>
+              .map((ev, index) => {
+                const isPast = new Date(ev.date) < new Date();
+                return (
+                  <View key={index} style={[styles.eventCard, isPast && { backgroundColor: '#ddd' }]}>
+                    <Text style={[styles.eventTitle, isPast && { color: '#777' }]}>{ev.nom}</Text>
+                    <Text style={[styles.eventDescription, isPast && { color: '#777' }]}>{ev.description}</Text>
+                    <TouchableOpacity
+                      style={[styles.signupButton, isPast && { backgroundColor: '#aaa' }]}
+                      disabled={isPast}
+                      onPress={() => alert(`Inscrit à l'événement : ${ev.nom}`)}
+                    >
+                      <Text style={styles.signupText}>{isPast ? "Événement passé" : "S'inscrire"}</Text>
+                    </TouchableOpacity>
                   </View>
-                ))}
-                <TouchableOpacity style={styles.closeBtn} onPress={() => { setModalVisible(false); setSelectedDate(null); }}>
-                  <Text style={styles.btnText}>Fermer</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
-          
+                );
+              })}
+          </View>
 
           {isAdmin && (
             <View style={{ marginTop: 30, backgroundColor: '#f2f2f2', padding: 15, borderRadius: 12 }}>
@@ -229,7 +207,7 @@ export default function Evenement() {
               <Text>Type</Text>
               <TextInput value={type} onChangeText={setType} style={styles.input} />
               <TouchableOpacity style={styles.submitBtn} onPress={handleAddEvent}>
-              <Text style={styles.btnText}>Ajouter</Text>
+                <Text style={styles.btnText}>Ajouter</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -238,14 +216,24 @@ export default function Evenement() {
             <View style={styles.modalBg}>
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>Événements du {selectedDate}</Text>
-                {selectedDate && events[selectedDate]?.map((ev, idx) => (
-                  <View key={idx} style={{ marginBottom: 16 }}>
-                    <Text style={styles.modalEvent}><Text style={styles.bold}>Nom :</Text> {ev.nom}</Text>
-                    <Text style={styles.modalEvent}><Text style={styles.bold}>Description :</Text> {ev.description}</Text>
-                    <Text style={styles.modalEvent}><Text style={styles.bold}>Lieu :</Text> {ev.lieu}</Text>
-                    <Text style={styles.modalEvent}><Text style={styles.bold}>Type :</Text> {ev.type}</Text>
-                  </View>
-                ))}
+                {selectedDate && events[selectedDate]?.map((ev, idx) => {
+                  const isPast = new Date(ev.date) < new Date();
+                  return (
+                    <View key={idx} style={{ marginBottom: 16 }}>
+                      <Text style={styles.modalEvent}><Text style={styles.bold}>Nom :</Text> {ev.nom}</Text>
+                      <Text style={styles.modalEvent}><Text style={styles.bold}>Description :</Text> {ev.description}</Text>
+                      <Text style={styles.modalEvent}><Text style={styles.bold}>Lieu :</Text> {ev.lieu}</Text>
+                      <Text style={styles.modalEvent}><Text style={styles.bold}>Type :</Text> {ev.type}</Text>
+                      <TouchableOpacity
+                        style={[styles.signupButton, isPast && { backgroundColor: '#aaa' }]}
+                        disabled={isPast}
+                        onPress={() => alert(`Inscrit à l'événement : ${ev.nom}`)}
+                      >
+                        <Text style={styles.signupText}>{isPast ? "Événement passé" : "S'inscrire"}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })}
                 <TouchableOpacity style={styles.closeBtn} onPress={() => {
                   setModalVisible(false);
                   setSelectedDate(null);
