@@ -1,7 +1,8 @@
-import { Feather, FontAwesome } from '@expo/vector-icons';
+import { AntDesign, Feather, FontAwesome } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
-import React, { JSX, useContext } from 'react';
+import React, { JSX, useContext, useEffect, useState } from 'react';
 import {
   ActionSheetIOS,
   Alert,
@@ -24,9 +25,19 @@ interface OptionProps {
 
 export default function ProfilScreen(): JSX.Element {
   const router = useRouter();
+  const [isAdmin, setIsAdmin] = useState(false);
   const context = useContext(UserContext);
   if (!context) throw new Error("ProfilScreen must be wrapped in a UserProvider");
   const { imageUri, setImageUri } = context;
+
+  // Vérifie si l'utilisateur est admin
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const value = await AsyncStorage.getItem("isAdmin");
+      setIsAdmin(value === "true");
+    };
+    checkAdmin();
+  }, []);
 
   const pickImage = async () => {
     const openCamera = async () => {
@@ -89,18 +100,32 @@ export default function ProfilScreen(): JSX.Element {
     <View style={styles.container}>
       <Text style={styles.header}>Mon Profil</Text>
 
-      <View style={styles.avatarContainer}>
-        <TouchableOpacity onPress={pickImage} activeOpacity={0.7}>
-          {imageUri ? (
-            <Image source={{ uri: imageUri } as ImageSourcePropType} style={styles.avatar} />
-          ) : (
-            <View style={styles.avatarPlaceholder}>
-              <FontAwesome name="user" size={60} color="#9BB1BC" />
-            </View>
-          )}
-        </TouchableOpacity>
-        <Text style={styles.editPhoto}>Modifier la photo</Text>
-      </View>
+<View style={styles.avatarContainer}>
+  <TouchableOpacity onPress={pickImage} activeOpacity={0.7}>
+    <View style={styles.avatarWrapper}>
+      {imageUri ? (
+        <Image
+          source={{ uri: imageUri } as ImageSourcePropType}
+          style={[styles.avatar, isAdmin && styles.avatarAdmin]}
+        />
+      ) : (
+        <View style={[styles.avatarPlaceholder, isAdmin && styles.avatarAdmin]}>
+          <FontAwesome name="user" size={60} color="#9BB1BC" />
+        </View>
+      )}
+      {isAdmin && (
+        <View style={styles.adminStar}>
+          <AntDesign name="star" size={20} color="#FFD700" />
+        </View>
+      )}
+    </View>
+  </TouchableOpacity>
+
+  <Text style={styles.editPhoto}>Modifier la photo</Text>
+  {isAdmin && (
+    <Text style={styles.adminBadge}>Administrateur</Text>
+  )}
+</View>
 
       <ScrollView style={styles.options} showsVerticalScrollIndicator={false}>
         <Option
@@ -188,6 +213,9 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 3 },
   },
+  avatarAdmin: {
+    borderColor: '#004E64',
+  },
   avatarPlaceholder: {
     width: 110,
     height: 110,
@@ -201,6 +229,16 @@ const styles = StyleSheet.create({
     color: '#075B7A',
     fontSize: 16,
     fontWeight: '600',
+  },
+  adminBadge: {
+    marginTop: 4,
+    backgroundColor: '#004E64',
+    color: 'white',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    fontWeight: '600',
+    fontSize: 14,
   },
   options: {
     flex: 1,
@@ -224,12 +262,24 @@ const styles = StyleSheet.create({
     color: '#075B7A',
     fontWeight: '600',
   },
-  bottomBar: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-around', 
-    paddingVertical: 12, 
-    backgroundColor: '#9BE0F1', 
+  bottomBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 12,
+    backgroundColor: '#9BE0F1',
     borderRadius: 20,
-    bottom: 30, 
-    marginTop: 10 },
+    bottom: 30,
+    marginTop: 10,
+  },
+  avatarWrapper: {
+  position: 'relative',
+},
+adminStar: {
+  position: 'absolute',
+  top: -5,
+  right: -5,
+  backgroundColor: '#075B7A',
+  borderRadius: 10,
+  padding: 3,
+},
 });

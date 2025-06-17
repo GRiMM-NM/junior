@@ -1,6 +1,8 @@
 import { FontAwesome } from "@expo/vector-icons";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
+
 import {
   ActivityIndicator,
   Animated,
@@ -32,6 +34,9 @@ interface Mission {
 }
 
 export default function Accueil() {
+  
+  const [isAdmin, setIsAdmin] = useState(false);
+  
   const router = useRouter();
   const colors = useThemeColors();
   const [missions, setMissions] = useState<Mission[]>([]);
@@ -45,6 +50,15 @@ export default function Accueil() {
   const [dateFin, setDateFin] = useState("");
   const [statutMission, setStatutMission] = useState("");
   const scaleAnim = useRef(new Animated.Value(1)).current;
+
+
+useEffect(() => {
+  const checkAdmin = async () => {
+    const adminValue = await AsyncStorage.getItem("isAdmin");
+    setIsAdmin(adminValue === "true");
+  };
+  checkAdmin();
+}, []);
 
 useEffect(() => {
   Animated.loop(
@@ -184,13 +198,14 @@ const addMission = async () => {
         )}
       </Card>
 
-      {/* BOUTON AJOUT FLOTTANT */}
-      <TouchableOpacity
-        onPress={() => setModalVisible(true)}
-        style={styles.floatingButton}
-      >
-        <Text style={styles.floatingButtonText}>+</Text>
-      </TouchableOpacity>
+      {isAdmin && (
+        <TouchableOpacity
+          onPress={() => setModalVisible(true)}
+          style={styles.floatingButton}
+        >
+          <Text style={styles.floatingButtonText}>+</Text>
+        </TouchableOpacity>
+      )}
 
       {/* MODAL AJOUT MISSION */}
       <Modal visible={modalVisible} transparent animationType="slide">

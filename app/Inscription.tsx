@@ -1,11 +1,15 @@
+// en haut des imports
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -18,6 +22,22 @@ export default function HomeScreen() {
   const router = useRouter();
   const [texte, setTexte] = useState('');
   const [texte1, setTexte1] = useState('');
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+
+  const handleLogin = async () => {
+    if (isAdminMode) {
+      if (adminPassword !== '1234') {
+        Alert.alert("Erreur", "Mot de passe administrateur incorrect");
+        return;
+      }
+      await AsyncStorage.setItem("isAdmin", "true");
+    } else {
+      await AsyncStorage.setItem("isAdmin", "false");
+    }
+
+    router.push('/Accueil');
+  }
 
   return (
     <SafeAreaView style={[{ flex: 1 }, { backgroundColor: colors.tint }]}>
@@ -58,6 +78,25 @@ export default function HomeScreen() {
             />
           </View>
 
+          {/* Toggle administrateur */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 10 }}>
+            <Text>Se connecter en tant qu’administrateur : </Text>
+            <Switch value={isAdminMode} onValueChange={setIsAdminMode} />
+          </View>
+
+          {isAdminMode && (
+            <View style={{ alignItems: 'center', marginTop: 10 }}>
+            <TextInput
+              style={styles.card}
+              placeholder="Mot de passe admin"
+              secureTextEntry
+              value={adminPassword}
+              onChangeText={setAdminPassword}
+              placeholderTextColor="#ffffffaa"
+            />
+            </View>
+          )}
+
           <TouchableOpacity onPress={() => router.push('/Mdp_oublie')}>
             <Text style={styles.linkText}>Mot de passe oublié ?</Text>
           </TouchableOpacity>
@@ -65,7 +104,7 @@ export default function HomeScreen() {
           <View style={styles.container1}>
             <TouchableOpacity
               style={styles.card1}
-              onPress={() => router.push('/Accueil')}
+              onPress={handleLogin}
             >
               <Text style={styles.buttonText}>Connexion</Text>
             </TouchableOpacity>
@@ -84,6 +123,7 @@ export default function HomeScreen() {
     </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   paragraph: {

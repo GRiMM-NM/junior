@@ -33,7 +33,7 @@ export default function DeuxPage() {
         style={[styles.logo, { transform: [{ rotate: spin }] }]}
       />
       <Text style={styles.paragraph2}>
-        Bienvenue sur l application de la Junior Entreprise.
+        Bienvenue sur l’application de la Junior Entreprise.
       </Text>
     </SafeAreaView>
   );

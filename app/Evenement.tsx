@@ -1,4 +1,5 @@
 import { FontAwesome } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -29,7 +30,10 @@ type Event = {
 
 type EventsMap = { [date: string]: Event[] };
 
-export default function Evenement() {
+export default function Evenement() { 
+
+  const [isAdmin, setIsAdmin] = useState(false);
+
   const router = useRouter();
   const [events, setEvents] = useState<EventsMap>({});
   const [loading, setLoading] = useState(true);
@@ -44,7 +48,14 @@ export default function Evenement() {
   const [type, setType] = useState('');
 
   const bottomBarAnim = useRef(new Animated.Value(0)).current;
-  const scrollOffset = useRef(0);
+
+  useEffect(() => {
+  const checkAdmin = async () => {
+    const adminValue = await AsyncStorage.getItem("isAdmin");
+    setIsAdmin(adminValue === "true");
+  };
+  checkAdmin();
+}, []);
 
   useEffect(() => {
     fetchEvents();
@@ -164,22 +175,25 @@ export default function Evenement() {
           <Text style={styles.title}>Événements</Text>
           {loading ? <ActivityIndicator size="large" color="#079BCF" /> : renderCalendar()}
 
-          <View style={{ marginTop: 30, backgroundColor: '#f2f2f2', padding: 15, borderRadius: 12 }}>
-            <Text style={{ fontSize: 18, fontWeight: '600', color: '#075B7A', marginBottom: 10 }}>Ajouter un événement</Text>
-            <Text>Nom</Text>
-            <TextInput value={nom} onChangeText={setNom} style={styles.input} />
-            <Text>Description</Text>
-            <TextInput value={description} onChangeText={setDescription} style={styles.input} multiline />
-            <Text>Date (YYYY-MM-DD)</Text>
-            <TextInput value={date} onChangeText={setDate} style={styles.input} />
-            <Text>Lieu</Text>
-            <TextInput value={lieu} onChangeText={setLieu} style={styles.input} />
-            <Text>Type</Text>
-            <TextInput value={type} onChangeText={setType} style={styles.input} />
-            <TouchableOpacity style={styles.submitBtn} onPress={handleAddEvent}>
+
+          {isAdmin && (
+            <View style={{ marginTop: 30, backgroundColor: '#f2f2f2', padding: 15, borderRadius: 12 }}>
+              <Text style={{ fontSize: 18, fontWeight: '600', color: '#075B7A', marginBottom: 10 }}>Ajouter un événement</Text>
+              <Text>Nom</Text>
+              <TextInput value={nom} onChangeText={setNom} style={styles.input} />
+              <Text>Description</Text>
+              <TextInput value={description} onChangeText={setDescription} style={styles.input} multiline />
+              <Text>Date (YYYY-MM-DD)</Text>
+              <TextInput value={date} onChangeText={setDate} style={styles.input} />
+              <Text>Lieu</Text>
+              <TextInput value={lieu} onChangeText={setLieu} style={styles.input} />
+              <Text>Type</Text>
+              <TextInput value={type} onChangeText={setType} style={styles.input} />
+              <TouchableOpacity style={styles.submitBtn} onPress={handleAddEvent}>
               <Text style={styles.btnText}>Ajouter</Text>
-            </TouchableOpacity>
-          </View>
+              </TouchableOpacity>
+            </View>
+          )}
 
           <Modal visible={modalVisible} transparent animationType="slide">
             <View style={styles.modalBg}>

@@ -1,4 +1,5 @@
 import { FontAwesome } from "@expo/vector-icons";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -34,6 +35,8 @@ interface ArticleItem {
 export default function Articles() {
   const colors = useThemeColors();
   const router = useRouter();
+  
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const [articles, setArticles] = useState<ArticleItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,6 +48,15 @@ export default function Articles() {
   const [newAuthor, setNewAuthor] = useState("");
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
+
+
+  useEffect(() => {
+  const checkAdmin = async () => {
+    const adminValue = await AsyncStorage.getItem("isAdmin");
+    setIsAdmin(adminValue === "true");
+  };
+  checkAdmin();
+  }, []);
 
   useEffect(() => {
     Animated.loop(
@@ -167,11 +179,13 @@ export default function Articles() {
         )}
       </Card>
 
-      <Animated.View style={[styles.floatingButton, { transform: [{ scale: scaleAnim }] }]}>
-        <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-      </Animated.View>
+      {isAdmin && (
+        <Animated.View style={[styles.floatingButton, { transform: [{ scale: scaleAnim }] }]}>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <Text style={styles.addButtonText}>+</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      )}
 
       <Modal visible={modalVisible} transparent animationType="slide">
         <KeyboardAvoidingView
