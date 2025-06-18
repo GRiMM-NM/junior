@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { auth } from '../firebaseConfig'; // adapte le chemin
 import { UserContext } from './../UserContext';
 
 interface OptionProps {
@@ -26,6 +27,7 @@ interface OptionProps {
 export default function ProfilScreen(): JSX.Element {
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [email, setEmail] = useState<string | null>(null);
   const context = useContext(UserContext);
   if (!context) throw new Error("ProfilScreen must be wrapped in a UserProvider");
   const { imageUri, setImageUri } = context;
@@ -38,6 +40,12 @@ export default function ProfilScreen(): JSX.Element {
     };
     checkAdmin();
   }, []);
+  useEffect(() => {
+  const user = auth.currentUser;
+  if (user && user.email) {
+    setEmail(user.email);
+  }
+}, []);
 
   const pickImage = async () => {
     const openCamera = async () => {
@@ -98,7 +106,7 @@ export default function ProfilScreen(): JSX.Element {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Mon Profil</Text>
+      <Text style={styles.header}>{email ?? "Mon Profil"}</Text>
 
 <View style={styles.avatarContainer}>
   <TouchableOpacity onPress={pickImage} activeOpacity={0.7}>
@@ -241,7 +249,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   options: {
-    flex: 1,
+    flex: 1,  
   },
   optionRow: {
     flexDirection: 'row',
