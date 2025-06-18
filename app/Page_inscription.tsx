@@ -37,7 +37,7 @@ export default function PageInscription() {
           keyboardShouldPersistTaps="handled"
         >
           <Row>
-            <TouchableOpacity onPress={() => router.push('/Accueil')}>
+            <TouchableOpacity onPress={() => router.back()}>
               <Image source={require('./../assets/images/arrow_back.png')} />
             </TouchableOpacity>
             <Text style={styles.paragraph}>Nouveau compte</Text>

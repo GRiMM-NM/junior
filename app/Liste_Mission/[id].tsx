@@ -39,6 +39,33 @@ export default function MissionDetail() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
   const confettiRef = useRef<Explosion>(null);
+  
+  const ajouterHistorique = async (
+  nom: string,
+  description: string,
+  date: string
+) => {
+  try {
+    const response = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/addHistorique", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type_historique: "mission",
+        nom,
+        description_historique: description,
+        date_action: date,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("Échec de l'ajout à l'historique");
+    } else {
+      console.log("Ajouté à l'historique avec succès");
+    }
+  } catch (error) {
+    console.error("Erreur lors de l'ajout à l'historique :", error);
+  }
+}
 
   useEffect(() => {
     const fetchMission = async () => {
@@ -133,9 +160,16 @@ export default function MissionDetail() {
       ? Colors.type.openGreen
       : Colors.type.closeRed;
 
-  const onConfirm = () => {
-    setShowConfirmation(true);
-  };
+const onConfirm = () => {
+  if (mission) {
+    ajouterHistorique(
+      mission.titre,
+      mission.description_Mission,
+      mission.date_fin
+    );
+  }
+  setShowConfirmation(true);
+};
 
   return (
     <View style={styles.container}>

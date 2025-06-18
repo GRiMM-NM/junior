@@ -119,6 +119,8 @@ export const addArticle = functions.https.onRequest(async (req, res) => {
   }
 });
 
+
+
 //ajoute des evenements
 
 export const addEvenement = functions.https.onRequest(async (req, res) => {
@@ -170,6 +172,82 @@ export const addEvenement = functions.https.onRequest(async (req, res) => {
     res.status(500).send('Erreur MySQL');
   }
 });
+
+// ajoute historique 
+export const addHistorique = functions.https.onRequest(async (req, res) => {
+  if (req.method !== 'POST') {
+    res.status(405).send('Méthode non autorisée');
+    return;
+  }
+
+  const { 
+    type_historique,
+    nom,
+    description_historique,
+    date_action,
+   } = req.body;
+
+   const dateOnly = date_action.trim().slice(0, 10); // "2025-06-25"
+
+  if (!type_historique || !nom || !description_historique ||! date_action) {
+    res.status(400).send('Champs manquants');
+    return;
+  }
+      const [rows] = await pool.query(
+      'SELECT Id_historique FROM Historique4 ORDER BY Id_historique DESC LIMIT 1'
+    ) as [any[], any];
+
+    let newId = 'H0001';
+    if (rows.length > 0) {
+      const lastId = rows[0].Id_historique;
+      const lastNumber = parseInt(lastId.replace('H', ''), 10);
+      const nextNumber = lastNumber + 1;
+      newId = `H${nextNumber.toString().padStart(4, '0')}`;
+    }
+
+  try {
+    await pool.query(
+      'INSERT INTO Historique4 (Id_historique, type_Historique, nom, description_historique, date_action) VALUES (?, ?, ?, ?, ?)',
+      [
+        newId,
+        type_historique.trim(), 
+        nom.trim(),
+        description_historique.trim(),
+        dateOnly,
+      ]
+    );
+
+    res.status(200).json({ success: true, nom, message:"Historique ajoutée avec succès" });
+  } catch (error) {
+    console.error('Erreur MySQL', error);
+    res.status(500).send('Erreur MySQL');
+  }
+});
+
+//supprimer historique 
+
+export const deleteHistorique = functions.https.onRequest(async (req, res) => {
+  if (req.method !== 'DELETE') {
+    res.status(405).send('Méthode non autorisée');
+    return;
+  }
+
+  const { id_historique } = req.body;
+
+  if (!id_historique) {
+    res.status(400).send('Id requis');
+    return;
+  }
+
+  try {
+    await pool.query('DELETE FROM Historique4 WHERE Id_historique = ?', [id_historique]);
+    res.status(200).json({ success: true, message: 'Historique supprimé avec succès' });
+  } catch (error) {
+    console.error('Erreur MySQL', error);
+    res.status(500).send('Erreur serveur');
+  }
+});
+
 
 // 📤 Récupérer les titres de missions
 export const getTitle_Mission = functions.https.onRequest(async (req, res) => {
@@ -250,7 +328,7 @@ export const getEvenement = functions.https.onRequest(async (req, res) => {
 
 export const getHistorique = functions.https.onRequest(async(req, res)=>{
   try{
-    const [rows]=await pool.query('SELECT Id_historique, type_Historique, nom, date_action FROM historique3');
+    const [rows]=await pool.query('SELECT Id_historique, type_Historique, nom, description_historique, date_action FROM historique4');
     res.status(200).json({historique : rows});
   } catch (err){
     console.error('Erreur MySQL', err);

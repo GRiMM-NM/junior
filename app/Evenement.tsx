@@ -46,6 +46,53 @@ export default function Evenement() {
   const [lieu, setLieu] = useState('');
   const [type, setType] = useState('');
 
+
+const ajouterHistorique = async (
+  nom: string,
+  description: string,
+  date: string
+) => {
+  try {
+    // 1. Vérifie si l'entrée existe déjà
+    const checkRes = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/getHistorique");
+    const checkJson = await checkRes.json();
+
+    const existeDeja = checkJson.historique.some(
+      (item: any) =>
+        item.type_Historique === "evenement" &&
+        item.nom === nom &&
+        item.date_action.slice(0, 10) === date.slice(0, 10)
+    );
+
+    if (existeDeja) {
+      alert("⚠️ Cet événement est déjà dans votre historique.");
+      return;
+    }
+
+    // 2. Sinon, ajoute-le
+    const response = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/addHistorique", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type_historique: "evenement",
+        nom,
+        description_historique: description,
+        date_action: date.slice(0, 10),
+      }),
+    });
+
+    if (!response.ok) {
+      alert("❌ Échec de l'ajout à l'historique.");
+    } else {
+      alert("✅ Événement ajouté à votre historique !");
+    }
+  } catch (error) {
+    console.error("Erreur lors de l'ajout à l'historique :", error);
+    alert("❌ Erreur lors de la tentative d'ajout à l'historique.");
+  }
+};
+
+
   const bottomBarAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -184,7 +231,9 @@ export default function Evenement() {
                     <TouchableOpacity
                       style={[styles.signupButton, isPast && { backgroundColor: '#aaa' }]}
                       disabled={isPast}
-                      onPress={() => alert(`Inscrit à l'événement : ${ev.nom}`)}
+                        onPress={() => {
+                          ajouterHistorique(ev.nom, ev.description, ev.date);
+                        }}
                     >
                       <Text style={styles.signupText}>{isPast ? "Événement passé" : "S'inscrire"}</Text>
                     </TouchableOpacity>
@@ -227,7 +276,9 @@ export default function Evenement() {
                       <TouchableOpacity
                         style={[styles.signupButton, isPast && { backgroundColor: '#aaa' }]}
                         disabled={isPast}
-                        onPress={() => alert(`Inscrit à l'événement : ${ev.nom}`)}
+                        onPress={() => {
+                          ajouterHistorique(ev.nom, ev.description, ev.date);
+                        }}
                       >
                         <Text style={styles.signupText}>{isPast ? "Événement passé" : "S'inscrire"}</Text>
                       </TouchableOpacity>
