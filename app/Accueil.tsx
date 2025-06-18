@@ -249,7 +249,7 @@ const addMission = async () => {
               />
               <TextInput
                 style={styles.input}
-                placeholder="Statut (ouvert / fermé)"
+                placeholder="Statut (ouverte / fermé)"
                 placeholderTextColor="#075B7A99"
                 value={statutMission}
                 onChangeText={setStatutMission}

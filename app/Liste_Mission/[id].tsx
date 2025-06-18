@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Animated,
   Dimensions,
   Image,
@@ -39,33 +40,50 @@ export default function MissionDetail() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
   const confettiRef = useRef<Explosion>(null);
-  
-  const ajouterHistorique = async (
-  nom: string,
-  description: string,
-  date: string
-) => {
+
+  const deleteMission = async (id: string) => {
+  setLoading(true);
   try {
-    const response = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/addHistorique", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type_historique: "mission",
-        nom,
-        description_historique: description,
-        date_action: date,
-      }),
+    const res = await fetch('http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/deletemission', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id_mission: id }),
     });
 
-    if (!response.ok) {
-      console.error("Échec de l'ajout à l'historique");
-    } else {
-      console.log("Ajouté à l'historique avec succès");
+    const text = await res.text();
+    console.log('Réponse serveur delete mission:', text);
+
+    try {
+      const result = JSON.parse(text);
+      if (result.success) {
+        alert('Mission supprimée !');
+        router.back(); // Retour à la page précédente
+      } else {
+        alert('Erreur lors de la suppression.');
+      }
+    } catch {
+      alert('Réponse serveur non JSON : ' + text);
     }
-  } catch (error) {
-    console.error("Erreur lors de l'ajout à l'historique :", error);
+  } catch (e) {
+    console.error(e);
+    alert('Erreur réseau lors de la suppression.');
+  } finally {
+    setLoading(false);
   }
-}
+};
+
+
+const confirmDeleteMission = (id: string) => {
+  Alert.alert(
+    "Confirmation",
+    "Voulez-vous vraiment supprimer cette mission ?",
+    [
+      { text: "Annuler", style: "cancel" },
+      { text: "Supprimer", style: "destructive", onPress: () => deleteMission(id) },
+    ]
+  );
+};
+
 
   useEffect(() => {
     const fetchMission = async () => {
@@ -160,16 +178,9 @@ export default function MissionDetail() {
       ? Colors.type.openGreen
       : Colors.type.closeRed;
 
-const onConfirm = () => {
-  if (mission) {
-    ajouterHistorique(
-      mission.titre,
-      mission.description_Mission,
-      mission.date_fin
-    );
-  }
-  setShowConfirmation(true);
-};
+  const onConfirm = () => {
+    setShowConfirmation(true);
+  };
 
   return (
     <View style={styles.container}>
@@ -233,6 +244,18 @@ const onConfirm = () => {
             </ThemedeText>
           </TouchableOpacity>
         )}
+
+        {mission && (
+  <TouchableOpacity
+    style={[styles.button, { backgroundColor: 'red', marginTop: 15 }]}
+    onPress={() => confirmDeleteMission(mission.Id_Mission)}
+  >
+    <ThemedeText variant="subtitle1" color="grayWhite">
+      Supprimer la mission
+    </ThemedeText>
+  </TouchableOpacity>
+)}
+
 
         {/* Confirmation + confettis avec animation fade */}
         {showConfirmation && (

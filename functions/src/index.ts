@@ -249,6 +249,81 @@ export const deleteHistorique = functions.https.onRequest(async (req, res) => {
 });
 
 
+//supprimer evenements 
+
+export const deleteEvenement = functions.https.onRequest(async (req, res) => {
+  if (req.method !== 'DELETE') {
+    res.status(405).send('Méthode non autorisée');
+    return;
+  }
+
+  const { id_evenement } = req.body;
+
+  if (!id_evenement) {
+    res.status(400).send('Id requis');
+    return;
+  }
+
+  try {
+    await pool.query('DELETE FROM Evenement WHERE Id_Evenement = ?', [id_evenement]);
+    res.status(200).json({ success: true, message: 'Événement supprimé avec succès' });
+  } catch (error) {
+    console.error('Erreur MySQL', error);
+    res.status(500).send('Erreur serveur');
+  }
+});
+
+
+//supprimer artcile 
+
+export const deleteArticle = functions.https.onRequest(async (req, res) => {
+  if (req.method !== 'DELETE') {
+    res.status(405).send('Méthode non autorisée');
+    return;
+  }
+
+  const { id_article } = req.body;
+
+  if (!id_article) {
+    res.status(400).send('Id requis');
+    return;
+  }
+
+  try {
+    await pool.query('DELETE FROM Article_veille2 WHERE Id_article = ?', [id_article]);
+    res.status(200).json({ success: true, message: 'Article supprimé avec succès' });
+  } catch (error) {
+    console.error('Erreur MySQL', error);
+    res.status(500).send('Erreur serveur');
+  }
+});
+
+//supprimer mission
+
+export const deletemission = functions.https.onRequest(async (req, res) => {
+  if (req.method !== 'DELETE') {
+    res.status(405).send('Méthode non autorisée');
+    return;
+  }
+
+  const { id_mission } = req.body;
+
+  if (!id_mission) {
+    res.status(400).send('Id requis');
+    return;
+  }
+
+  try {
+    await pool.query('DELETE FROM Mission WHERE Id_Mission = ?', [id_mission]);
+    res.status(200).json({ success: true, message: 'Mission supprimée avec succès' });
+  } catch (error) {
+    console.error('Erreur MySQL', error);
+    res.status(500).send('Erreur serveur');
+  }
+});
+
+
+
 // 📤 Récupérer les titres de missions
 export const getTitle_Mission = functions.https.onRequest(async (req, res) => {
   try {

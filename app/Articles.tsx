@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Animated,
   FlatList,
   KeyboardAvoidingView,
@@ -37,7 +38,6 @@ export default function Articles() {
   const router = useRouter();
   
   const [isAdmin, setIsAdmin] = useState(false);
-
   const [articles, setArticles] = useState<ArticleItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -49,13 +49,12 @@ export default function Articles() {
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
-
   useEffect(() => {
-  const checkAdmin = async () => {
-    const adminValue = await AsyncStorage.getItem("isAdmin");
-    setIsAdmin(adminValue === "true");
-  };
-  checkAdmin();
+    const checkAdmin = async () => {
+      const adminValue = await AsyncStorage.getItem("isAdmin");
+      setIsAdmin(adminValue === "true");
+    };
+    checkAdmin();
   }, []);
 
   useEffect(() => {
@@ -99,9 +98,7 @@ export default function Articles() {
       try {
         const response = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/addArticle", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             nom_article: newTitle,
             contenu: newContent,
@@ -109,9 +106,7 @@ export default function Articles() {
           }),
         });
 
-        if (!response.ok) {
-          throw new Error("Échec de l’ajout de l’article");
-        }
+        if (!response.ok) throw new Error("Échec de l’ajout");
 
         const data = await response.json();
         console.log("Article ajouté :", data);
@@ -132,9 +127,42 @@ export default function Articles() {
         setNewAuthor("");
         setModalVisible(false);
       } catch (error) {
-        console.error("Erreur lors de l’ajout de l’article :", error);
+        console.error("Erreur ajout article :", error);
       }
     }
+  };
+
+  const deleteArticle = async (id: string) => {
+    Alert.alert(
+      "Confirmation",
+      "Voulez-vous vraiment supprimer cet article ?",
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "Supprimer",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const res = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/deleteArticle", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id_article: id }),
+              });
+
+              if (res.ok) {
+                alert("Article supprimé !");
+                setArticles((prev) => prev.filter((article) => article.id !== id));
+                setSelectedArticle(null);
+              } else {
+                alert("Erreur lors de la suppression.");
+              }
+            } catch (error) {
+              alert("Erreur réseau.");
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -165,6 +193,22 @@ export default function Articles() {
             <TouchableOpacity onPress={() => setSelectedArticle(null)}>
               <Text style={styles.back}>← Retour à la liste</Text>
             </TouchableOpacity>
+
+            {isAdmin && (
+              <TouchableOpacity
+                style={{
+                  marginTop: 20,
+                  backgroundColor: "#D9534F",
+                  padding: 10,
+                  borderRadius: 8,
+                }}
+                onPress={() => deleteArticle(selectedArticle.id)}
+              >
+                <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
+                  Supprimer l article
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         ) : (
           <FlatList

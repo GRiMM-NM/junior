@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Animated,
   KeyboardAvoidingView,
   Modal,
@@ -45,6 +46,53 @@ export default function Evenement() {
   const [date, setDate] = useState('');
   const [lieu, setLieu] = useState('');
   const [type, setType] = useState('');
+
+const deleteEvent = async (id: string) => {
+  setLoading(true);
+  try {
+    const res = await fetch('http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/deleteEvenement', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id_evenement: id }),
+    });
+
+    const text = await res.text();
+    console.log('Réponse serveur delete:', text);
+
+    try {
+      const result = JSON.parse(text);
+      if (result.success) {
+        alert('Événement supprimé !');
+        setModalVisible(false);
+        fetchEvents();
+      } else {
+        alert('Erreur lors de la suppression.');
+      }
+    } catch {
+      alert('Réponse serveur non JSON : ' + text);
+    }
+
+  } catch (e) {
+    console.error(e);
+    alert('Erreur réseau lors de la suppression.');
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+const confirmDelete = (id: string) => {
+  Alert.alert(
+    "Confirmation",
+    "Voulez-vous vraiment supprimer cet événement ?",
+    [
+      { text: "Annuler", style: "cancel" },
+      { text: "Supprimer", style: "destructive", onPress: () => deleteEvent(id) },
+    ]
+  );
+};
+
 
 
 const ajouterHistorique = async (
@@ -220,26 +268,39 @@ const ajouterHistorique = async (
 
           <View style={{ marginTop: 30 }}>
             <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Événements ce mois-ci</Text>
-            {Object.keys(events).filter(date => new Date(date).getMonth() === currentMonthIndex)
-              .flatMap(date => events[date])
-              .map((ev, index) => {
-                const isPast = new Date(ev.date) < new Date();
-                return (
-                  <View key={index} style={[styles.eventCard, isPast && { backgroundColor: '#ddd' }]}>
-                    <Text style={[styles.eventTitle, isPast && { color: '#777' }]}>{ev.nom}</Text>
-                    <Text style={[styles.eventDescription, isPast && { color: '#777' }]}>{ev.description}</Text>
-                    <TouchableOpacity
-                      style={[styles.signupButton, isPast && { backgroundColor: '#aaa' }]}
-                      disabled={isPast}
+              {Object.keys(events).filter(date => new Date(date).getMonth() === currentMonthIndex)
+                .flatMap(date => events[date])
+                .map((ev, index) => {
+                  const isPast = new Date(ev.date) < new Date();
+                  return (
+                    <View key={index} style={[styles.eventCard, isPast && { backgroundColor: '#ddd' }]}>
+                      <Text style={[styles.eventTitle, isPast && { color: '#777' }]}>{ev.nom}</Text>
+                      <Text style={[styles.eventDescription, isPast && { color: '#777' }]}>{ev.description}</Text>
+
+                        {isAdmin===false && (
+                        <TouchableOpacity
+                        style={[styles.signupButton, isPast && { backgroundColor: '#aaa' }]}
+                        disabled={isPast}
                         onPress={() => {
                           ajouterHistorique(ev.nom, ev.description, ev.date);
                         }}
-                    >
-                      <Text style={styles.signupText}>{isPast ? "Événement passé" : "S'inscrire"}</Text>
-                    </TouchableOpacity>
-                  </View>
-                );
+                      >
+                        <Text style={styles.signupText}>{isPast ? "Événement passé" : "S'inscrire"}</Text>
+                      </TouchableOpacity>
+              )}
+
+              {isAdmin && (
+                <TouchableOpacity
+                  style={[styles.signupButton, { backgroundColor: 'red', marginTop: 10 }]}
+                  onPress={() => confirmDelete(ev.id)}
+                >
+                  <Text style={styles.signupText}>Supprimer</Text>
+                </TouchableOpacity>
+              )}
+                    </View>
+                  );
               })}
+
           </View>
 
           {isAdmin && (
@@ -253,7 +314,7 @@ const ajouterHistorique = async (
               <TextInput value={date} onChangeText={setDate} style={styles.input} />
               <Text>Lieu</Text>
               <TextInput value={lieu} onChangeText={setLieu} style={styles.input} />
-              <Text>Type</Text>
+              <Text>Type (formation / conférence / rencontre)</Text>
               <TextInput value={type} onChangeText={setType} style={styles.input} />
               <TouchableOpacity style={styles.submitBtn} onPress={handleAddEvent}>
                 <Text style={styles.btnText}>Ajouter</Text>
