@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -41,6 +42,8 @@ export default function MissionDetail() {
   const slideAnim = useRef(new Animated.Value(20)).current;
   const confettiRef = useRef<Explosion>(null);
 
+  const [isAdmin, setIsAdmin] = useState(false);
+
   const deleteMission = async (id: string) => {
   setLoading(true);
   try {
@@ -83,6 +86,14 @@ const confirmDeleteMission = (id: string) => {
     ]
   );
 };
+
+useEffect(() => {
+  const checkAdmin = async () => {
+    const value = await AsyncStorage.getItem("isAdmin");
+    setIsAdmin(value === "true");
+  };
+  checkAdmin();
+}, []);
 
 
   useEffect(() => {
@@ -236,8 +247,8 @@ const confirmDeleteMission = (id: string) => {
           </ThemedeText>
         </Animated.View>
 
-        {/* Bouton d'action */}
-        {mission.statut_Mission.toLowerCase() === "ouverte" && !showConfirmation && (
+        {/* Bouton INSCRIPTION - seulement si non-admin ET mission ouverte */}
+        {!isAdmin && mission.statut_Mission.toLowerCase() === "ouverte" && !showConfirmation && (
           <TouchableOpacity style={styles.button} onPress={onConfirm}>
             <ThemedeText variant="subtitle1" color="grayWhite">
               S’inscrire à cette mission
@@ -245,17 +256,17 @@ const confirmDeleteMission = (id: string) => {
           </TouchableOpacity>
         )}
 
-        {mission && (
-  <TouchableOpacity
-    style={[styles.button, { backgroundColor: 'red', marginTop: 15 }]}
-    onPress={() => confirmDeleteMission(mission.Id_Mission)}
-  >
-    <ThemedeText variant="subtitle1" color="grayWhite">
-      Supprimer la mission
-    </ThemedeText>
-  </TouchableOpacity>
-)}
-
+        {/* Bouton SUPPRIMER - seulement pour les admins */}
+        {isAdmin && (
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: 'red', marginTop: 15 }]}
+            onPress={() => confirmDeleteMission(mission.Id_Mission)}
+          >
+            <ThemedeText variant="subtitle1" color="grayWhite">
+              Supprimer la mission
+            </ThemedeText>
+          </TouchableOpacity>
+        )}
 
         {/* Confirmation + confettis avec animation fade */}
         {showConfirmation && (
