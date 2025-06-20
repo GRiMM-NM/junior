@@ -189,9 +189,50 @@ useEffect(() => {
       ? Colors.type.openGreen
       : Colors.type.closeRed;
 
-  const onConfirm = () => {
-    setShowConfirmation(true);
-  };
+const ajouterHistorique = async (
+  nom: string,
+  description: string,
+  date: string
+) => {
+  try {
+    // 1. Vérifie si l'entrée existe déjà
+    const checkRes = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/getHistorique");
+    const checkJson = await checkRes.json();
+
+    const existeDeja = checkJson.historique.some(
+      (item: any) =>
+        item.type_Historique === "mission" &&
+        item.nom === nom &&
+        item.date_action.slice(0, 10) === date.slice(0, 10)
+    );
+
+    if (existeDeja) {
+      alert("⚠️ Cet événement est déjà dans votre historique.");
+      return;
+    }
+
+    // 2. Sinon, ajoute-le
+    const response = await fetch("http://172.20.10.13:5001/juniorfirebase-d7603/us-central1/addHistorique", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type_historique: "evenement",
+        nom,
+        description_historique: description,
+        date_action: date.slice(0, 10),
+      }),
+    });
+
+    if (!response.ok) {
+      alert("❌ Échec de l'ajout à l'historique.");
+    } else {
+      alert("✅ Événement ajouté à votre historique !");
+    }
+  } catch (error) {
+    console.error("Erreur lors de l'ajout à l'historique :", error);
+    alert("❌ Erreur lors de la tentative d'ajout à l'historique.");
+  }
+};
 
   return (
     <View style={styles.container}>
@@ -249,7 +290,9 @@ useEffect(() => {
 
         {/* Bouton INSCRIPTION - seulement si non-admin ET mission ouverte */}
         {!isAdmin && mission.statut_Mission.toLowerCase() === "ouverte" && !showConfirmation && (
-          <TouchableOpacity style={styles.button} onPress={onConfirm}>
+          <TouchableOpacity style={styles.button}                         onPress={() => {
+                          ajouterHistorique(mission.titre, mission.description_Mission, mission.date_fin);
+                        }}>
             <ThemedeText variant="subtitle1" color="grayWhite">
               S’inscrire à cette mission
             </ThemedeText>

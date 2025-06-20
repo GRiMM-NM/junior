@@ -96,7 +96,7 @@ export const addArticle = functions.https.onRequest(async (req, res) => {
     if (rows.length > 0) {
       const lastId = rows[0].Id_article;
       const lastNumber = parseInt(lastId.replace('A', ''), 10);
-      const nextNumber = lastNumber + 1;
+      const nextNumber = lastNumber + 10;
       newId = `A${nextNumber.toString().padStart(4, '0')}`;
     }
 

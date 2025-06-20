@@ -63,8 +63,19 @@ const deleteEvent = async (id: string) => {
       const result = JSON.parse(text);
       if (result.success) {
         alert('Événement supprimé !');
+
+        // ⚠️ Mise à jour locale des events sans attendre fetchEvents
+        const updatedEvents = { ...events };
+        for (const dateKey in updatedEvents) {
+          updatedEvents[dateKey] = updatedEvents[dateKey].filter(ev => ev.id !== id);
+          if (updatedEvents[dateKey].length === 0) {
+            delete updatedEvents[dateKey];
+          }
+        }
+        setEvents(updatedEvents);
+        
         setModalVisible(false);
-        fetchEvents();
+        setSelectedDate(null);
       } else {
         alert('Erreur lors de la suppression.');
       }
